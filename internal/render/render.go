@@ -13,7 +13,14 @@ import (
 
 // Page — данные, которые получает каждый шаблон.
 type Page struct {
-	Base  string
+	// Base — корень сайта, "/Proks_site/": от него ссылки на static/.
+	Base string
+	// Home — корень версии сайта на языке Lang: "/Proks_site/" или "/Proks_site/en/". От него ссылки между страницами.
+	Home string
+	// Lang — язык страницы; его словарь доступен в шаблонах как {{t "ключ"}}.
+	Lang Lang
+	// Langs — эта же страница на всех языках, для переключателя.
+	Langs []Alternate
 	Title string
 	// Active — раздел для подсветки в меню: "home", "docs", "changelog" или "bench".
 	Active string
@@ -60,9 +67,10 @@ func New(dir string) *Renderer {
 }
 
 // Render пишет в w страницу name (например "index.html"), вставленную в layout.html.
-// Каждая страница парсится отдельно, потому что все они определяют свой блок "content".
+// Каждая страница парсится отдельно, потому что все они определяют свой блок "content";
+// заодно функция t привязывается к языку страницы.
 func (r *Renderer) Render(w io.Writer, name string, p Page) error {
-	t, err := template.ParseFiles(
+	t, err := template.New(name).Funcs(template.FuncMap{"t": p.Lang.T}).ParseFiles(
 		filepath.Join(r.dir, "layout.html"),
 		filepath.Join(r.dir, name),
 	)

@@ -2,14 +2,10 @@
   <header class="hero text-white py-5">
     <div class="container py-md-4">
       <h1 class="display-5 fw-bold">Proks</h1>
-      <p class="lead col-lg-8">
-        Кэширующий HTTP-прокси на Go. Отдаёт попадание в кэш за единицы микросекунд,
-        сам догадывается, какую страницу запросят следующей, и сбрасывает устаревшие
-        данные на всех репликах сразу.
-      </p>
+      <p class="lead col-lg-8">{{t "home.lead"}}</p>
       <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-light btn-lg" href="https://github.com/Sysoev973/Proks">Исходный код</a>
-        <a class="btn btn-outline-light btn-lg" href="#architecture">Как это устроено</a>
+        <a class="btn btn-light btn-lg" href="https://github.com/Sysoev973/Proks">{{t "home.btn_source"}}</a>
+        <a class="btn btn-outline-light btn-lg" href="#architecture">{{t "home.btn_arch"}}</a>
       </div>
     </div>
   </header>
@@ -19,37 +15,26 @@
       <div class="container">
         <div class="row g-4 align-items-center">
           <div class="col-lg-7">
-            <h2 class="h1 mb-3">Что такое Proks</h2>
-            <p>
-              Proks стоит между клиентами и вашим API. Повторные <code>GET</code>-запросы он отдаёт
-              из памяти и не беспокоит upstream. Ответы с <code>Authorization</code>, <code>Cookie</code>,
-              <code>Set-Cookie</code> или <code>Cache-Control: private</code> идут мимо кэша,
-              поэтому личные данные одного пользователя не попадут к другому.
-            </p>
-            <p class="mb-0">
-              Прокси ничего не знает о предметной области: теги для сброса кэша берутся
-              из конфигурации маршрутов или из заголовков upstream (<code>Surrogate-Key</code>,
-              <code>Cache-Tag</code>). Поэтому он подходит для любого HTTP API.
-            </p>
+            <h2 class="h1 mb-3">{{t "home.about_h"}}</h2>
+            <p>{{t "home.about_p1"}}</p>
+            <p class="mb-0">{{t "home.about_p2"}}</p>
           </div>
           <div class="col-lg-5">
             <div class="row g-3 text-center">
               <div class="col-6">
                 <div class="stat p-3 rounded-3 h-100">
-                  <div class="stat-value">~5&nbsp;мкс</div>
-                  <div class="small text-body-secondary">попадание в кэш внутри handler</div>
+                  <div class="stat-value">{{t "home.stat_hit_value"}}</div>
+                  <div class="small text-body-secondary">{{t "home.stat_hit"}}</div>
                 </div>
               </div>
               <div class="col-6">
                 <div class="stat p-3 rounded-3 h-100">
-                  <div class="stat-value">1–2&nbsp;мс</div>
-                  <div class="small text-body-secondary">p95 по HTTP на локальном стенде</div>
+                  <div class="stat-value">{{t "home.stat_p95_value"}}</div>
+                  <div class="small text-body-secondary">{{t "home.stat_p95"}}</div>
                 </div>
               </div>
               <div class="col-12">
-                <p class="small text-body-secondary mb-0">
-                  Замеры: Intel Core i7-10870H, Go-бенчмарки и k6.
-                </p>
+                <p class="small text-body-secondary mb-0">{{t "home.stat_note"}}</p>
               </div>
             </div>
           </div>
@@ -59,47 +44,38 @@
 
     <section id="features" class="py-5 bg-body-tertiary">
       <div class="container">
-        <h2 class="h1 mb-4">Возможности</h2>
+        <h2 class="h1 mb-4">{{t "home.features_h"}}</h2>
         <div class="row row-cols-1 row-cols-md-3 g-4">
           <div class="col">
             <div class="card h-100 shadow-sm">
               <div class="card-body">
-                <h3 class="card-title h5">Предзагрузка по цепям Маркова</h3>
-                <p class="card-text">
-                  Прокси запоминает переходы между страницами и после запроса A заранее
-                  загружает вероятный следующий маршрут B, пока пользователь читает A.
-                </p>
+                <h3 class="card-title h5">{{t "home.f1_h"}}</h3>
+                <p class="card-text">{{t "home.f1_p"}}</p>
               </div>
               <div class="card-footer bg-transparent small text-body-secondary">
-                p95 второго запроса цепочки −22%
+                {{t "home.f1_foot"}}
               </div>
             </div>
           </div>
           <div class="col">
             <div class="card h-100 shadow-sm">
               <div class="card-body">
-                <h3 class="card-title h5">Вытеснение TinyLFU</h3>
-                <p class="card-text">
-                  В кэш попадают ключи, которые запрашивают часто, а не просто недавно.
-                  Разовый проход по тысячам страниц не выбивает из памяти горячие записи.
-                </p>
+                <h3 class="card-title h5">{{t "home.f2_h"}}</h3>
+                <p class="card-text">{{t "home.f2_p"}}</p>
               </div>
               <div class="card-footer bg-transparent small text-body-secondary">
-                hit ratio 0.457 против 0.260 у LRU на scan-нагрузке
+                {{t "home.f2_foot"}}
               </div>
             </div>
           </div>
           <div class="col">
             <div class="card h-100 shadow-sm">
               <div class="card-body">
-                <h3 class="card-title h5">Инвалидация через RabbitMQ</h3>
-                <p class="card-text">
-                  Изменение в базе попадает в transactional outbox и рассылается всем репликам.
-                  Событие не теряется при падении брокера, а повтор отбрасывается по <code>event_id</code>.
-                </p>
+                <h3 class="card-title h5">{{t "home.f3_h"}}</h3>
+                <p class="card-text">{{t "home.f3_p"}}</p>
               </div>
               <div class="card-footer bg-transparent small text-body-secondary">
-                доставка at-least-once
+                {{t "home.f3_foot"}}
               </div>
             </div>
           </div>
@@ -109,26 +85,26 @@
 
     <section id="architecture" class="py-5">
       <div class="container">
-        <h2 class="h1 mb-4">Архитектура</h2>
+        <h2 class="h1 mb-4">{{t "home.arch_h"}}</h2>
 
-        <h3 class="h5 mb-3">Чтение</h3>
+        <h3 class="h5 mb-3">{{t "home.arch_read"}}</h3>
         <div class="flow mb-5">
-          <div class="flow-node">Клиент</div>
+          <div class="flow-node">{{t "home.arch_client"}}</div>
           <div class="flow-arrow" aria-hidden="true"></div>
           <div class="flow-node flow-node-accent">
             Proks
-            <span class="flow-note">кэш TinyLFU, предзагрузка</span>
+            <span class="flow-note">{{t "home.arch_proks_note"}}</span>
           </div>
           <div class="flow-arrow" aria-hidden="true"></div>
           <div class="flow-node">
             Upstream API
-            <span class="flow-note">только при промахе</span>
+            <span class="flow-note">{{t "home.arch_upstream_note"}}</span>
           </div>
           <div class="flow-arrow" aria-hidden="true"></div>
           <div class="flow-node">PostgreSQL</div>
         </div>
 
-        <h3 class="h5 mb-3">Изменение данных</h3>
+        <h3 class="h5 mb-3">{{t "home.arch_write"}}</h3>
         <div class="flow">
           <div class="flow-node">
             <code>PUT /books/{id}</code>
@@ -136,14 +112,14 @@
           <div class="flow-arrow" aria-hidden="true"></div>
           <div class="flow-node">
             PostgreSQL
-            <span class="flow-note">запись + outbox в одной транзакции</span>
+            <span class="flow-note">{{t "home.arch_pg_note"}}</span>
           </div>
           <div class="flow-arrow" aria-hidden="true"></div>
           <div class="flow-node">RabbitMQ</div>
           <div class="flow-arrow" aria-hidden="true"></div>
           <div class="flow-node flow-node-accent">
-            Все реплики Proks
-            <span class="flow-note">сбрасывают записи по тегам</span>
+            {{t "home.arch_replicas"}}
+            <span class="flow-note">{{t "home.arch_replicas_note"}}</span>
           </div>
         </div>
       </div>

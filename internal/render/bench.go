@@ -26,8 +26,8 @@ type BenchRow struct {
 	Name, Off, On string
 }
 
-// NewBenchData готовит страницу из истории запусков (от старых к новым).
-func NewBenchData(runs []source.BenchRun, repo, branch string) BenchData {
+// NewBenchData готовит страницу из истории запусков (от старых к новым) на языке l.
+func NewBenchData(runs []source.BenchRun, repo, branch string, l Lang) BenchData {
 	d := BenchData{
 		Runs:        len(runs),
 		WorkflowURL: "https://github.com/" + repo + "/actions/workflows/bench.yml",
@@ -45,17 +45,19 @@ func NewBenchData(runs []source.BenchRun, repo, branch string) BenchData {
 	}
 	d.CommitURL = "https://github.com/" + repo + "/commit/" + latest.SHA
 
+	unit := " " + l.Text("bench.ms")
+	ms := func(v *float64) string { return format(v, 1, "%.2f"+unit) }
 	off, on := latest.Off, latest.On
 	d.Rows = []BenchRow{
-		{"Авторы p50", ms(off.Latency.Authors.P50), ms(on.Latency.Authors.P50)},
-		{"Авторы p95", ms(off.Latency.Authors.P95), ms(on.Latency.Authors.P95)},
-		{"Авторы p99", ms(off.Latency.Authors.P99), ms(on.Latency.Authors.P99)},
-		{"Карточка p95", ms(off.Latency.Card.P95), ms(on.Latency.Card.P95)},
-		{"Все запросы p95", ms(off.Latency.All.P95), ms(on.Latency.All.P95)},
-		{"Hit ratio (сервер)", pct(off.Server.HitRatio), pct(on.Server.HitRatio)},
-		{"Запросы к upstream", rps(off.Server.UpstreamRPS), rps(on.Server.UpstreamRPS)},
-		{"Бесполезные предзагрузки", pct(off.Server.UselessPrefetch), pct(on.Server.UselessPrefetch)},
-		{"Ошибки", pct(off.FailedRate), pct(on.FailedRate)},
+		{l.Text("bench.row_authors_p50"), ms(off.Latency.Authors.P50), ms(on.Latency.Authors.P50)},
+		{l.Text("bench.row_authors_p95"), ms(off.Latency.Authors.P95), ms(on.Latency.Authors.P95)},
+		{l.Text("bench.row_authors_p99"), ms(off.Latency.Authors.P99), ms(on.Latency.Authors.P99)},
+		{l.Text("bench.row_card_p95"), ms(off.Latency.Card.P95), ms(on.Latency.Card.P95)},
+		{l.Text("bench.row_all_p95"), ms(off.Latency.All.P95), ms(on.Latency.All.P95)},
+		{l.Text("bench.row_hit"), pct(off.Server.HitRatio), pct(on.Server.HitRatio)},
+		{l.Text("bench.row_upstream"), rps(off.Server.UpstreamRPS), rps(on.Server.UpstreamRPS)},
+		{l.Text("bench.row_useless"), pct(off.Server.UselessPrefetch), pct(on.Server.UselessPrefetch)},
+		{l.Text("bench.row_failed"), pct(off.FailedRate), pct(on.FailedRate)},
 	}
 
 	labels := make([]string, len(runs))
@@ -66,12 +68,13 @@ func NewBenchData(runs []source.BenchRun, repo, branch string) BenchData {
 		hitOff[i], hitOn[i] = percent(r.Off.Server.HitRatio), percent(r.On.Server.HitRatio)
 		p95Off[i], p95On[i] = r.Off.Latency.Authors.P95, r.On.Latency.Authors.P95
 	}
-	d.HitChart = LineChart("Hit ratio сервера по запускам", "%", labels,
-		Series{Name: "без предзагрузки", Class: "chart-off", Values: hitOff},
-		Series{Name: "с предзагрузкой", Class: "chart-on", Values: hitOn})
-	d.P95Chart = LineChart("p95 запроса авторов по запускам", " мс", labels,
-		Series{Name: "без предзагрузки", Class: "chart-off", Values: p95Off},
-		Series{Name: "с предзагрузкой", Class: "chart-on", Values: p95On})
+	offName, onName := l.Text("bench.off"), l.Text("bench.on")
+	d.HitChart = LineChart(l.Text("bench.hit_chart"), "%", labels,
+		Series{Name: offName, Class: "chart-off", Values: hitOff},
+		Series{Name: onName, Class: "chart-on", Values: hitOn})
+	d.P95Chart = LineChart(l.Text("bench.p95_chart"), unit, labels,
+		Series{Name: offName, Class: "chart-off", Values: p95Off},
+		Series{Name: onName, Class: "chart-on", Values: p95On})
 	return d
 }
 
@@ -84,7 +87,6 @@ func percent(v *float64) *float64 {
 	return &p
 }
 
-func ms(v *float64) string  { return format(v, 1, "%.2f мс") }
 func pct(v *float64) string { return format(v, 100, "%.1f%%") }
 func rps(v *float64) string { return format(v, 1, "%.1f rps") }
 

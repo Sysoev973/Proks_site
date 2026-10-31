@@ -1,10 +1,10 @@
 {{define "content"}}
   <main class="py-5">
     <div class="container">
-      <h1 class="mb-4">Изменения</h1>
+      <h1 class="mb-4">{{t "changelog.h"}}</h1>
 
       <section class="mb-5">
-        <h2 class="h3 mb-3">Релизы</h2>
+        <h2 class="h3 mb-3">{{t "changelog.releases"}}</h2>
         {{range .Data.Releases}}
         <article class="card mb-3 shadow-sm">
           <div class="card-header d-flex flex-wrap justify-content-between gap-2">
@@ -17,13 +17,13 @@
           {{if .BodyHTML}}<div class="card-body doc-content">{{.BodyHTML}}</div>{{end}}
         </article>
         {{else}}
-        <p class="text-body-secondary">Релизов пока нет.</p>
+        <p class="text-body-secondary">{{t "changelog.no_releases"}}</p>
         {{end}}
-        <a class="small" href="{{.Data.ReleasesURL}}">Все релизы на GitHub</a>
+        <a class="small" href="{{.Data.ReleasesURL}}">{{t "changelog.all_releases"}}</a>
       </section>
 
       <section>
-        <h2 class="h3 mb-3">Последние коммиты</h2>
+        <h2 class="h3 mb-3">{{t "changelog.commits"}}</h2>
         <ul class="list-group mb-3">
           {{range .Data.Commits}}
           <li class="list-group-item d-flex flex-column flex-sm-row gap-sm-3">
@@ -32,10 +32,10 @@
             <span class="text-body-secondary small text-nowrap">{{.Date.Format "02.01.2006"}}</span>
           </li>
           {{else}}
-          <li class="list-group-item text-body-secondary">Коммитов нет.</li>
+          <li class="list-group-item text-body-secondary">{{t "changelog.no_commits"}}</li>
           {{end}}
         </ul>
-        <a class="small" href="{{.Data.CommitsURL}}">Вся история на GitHub</a>
+        <a class="small" href="{{.Data.CommitsURL}}">{{t "changelog.all_commits"}}</a>
       </section>
     </div>
   </main>

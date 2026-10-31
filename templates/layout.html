@@ -1,11 +1,14 @@
 {{define "layout" -}}
 <!doctype html>
-<html lang="ru">
+<html lang="{{.Lang.Code}}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{.Title}}</title>
-  <meta name="description" content="Proks — кэширующий HTTP-прокси на Go: TinyLFU, предзагрузка по цепям Маркова, инвалидация через RabbitMQ.">
+  <meta name="description" content="{{t "meta.description"}}">
+  {{- range .Langs}}
+  <link rel="alternate" hreflang="{{.Code}}" href="{{.URL}}">
+  {{- end}}
   <script>
     // Тема ставится до загрузки CSS, иначе тёмная страница на миг мигает светлой.
     // Остальная логика переключателя — в static/js/theme.js.
@@ -26,40 +29,46 @@
   <!-- В 5.3 navbar-dark устарел: тёмные цвета навбара и его меню задаёт data-bs-theme. -->
   <nav class="navbar navbar-expand-lg bg-dark sticky-top site-nav" data-bs-theme="dark">
     <div class="container">
-      <a class="navbar-brand fw-semibold" href="{{.Base}}">Proks</a>
+      <a class="navbar-brand fw-semibold" href="{{.Home}}">Proks</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-              aria-controls="mainNav" aria-expanded="false" aria-label="Открыть меню">
+              aria-controls="mainNav" aria-expanded="false" aria-label="{{t "nav.menu"}}">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="mainNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="{{.Base}}#about">О проекте</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{.Base}}#features">Возможности</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{.Base}}#architecture">Архитектура</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{.Home}}#about">{{t "nav.about"}}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{.Home}}#features">{{t "nav.features"}}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{.Home}}#architecture">{{t "nav.architecture"}}</a></li>
           <li class="nav-item">
-            <a class="nav-link{{if eq .Active "docs"}} active{{end}}" href="{{.Base}}docs/"
-               {{- if eq .Active "docs"}} aria-current="page"{{end}}>Документация</a>
+            <a class="nav-link{{if eq .Active "docs"}} active{{end}}" href="{{.Home}}docs/"
+               {{- if eq .Active "docs"}} aria-current="page"{{end}}>{{t "nav.docs"}}</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link{{if eq .Active "changelog"}} active{{end}}" href="{{.Base}}changelog/"
-               {{- if eq .Active "changelog"}} aria-current="page"{{end}}>Изменения</a>
+            <a class="nav-link{{if eq .Active "changelog"}} active{{end}}" href="{{.Home}}changelog/"
+               {{- if eq .Active "changelog"}} aria-current="page"{{end}}>{{t "nav.changelog"}}</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link{{if eq .Active "bench"}} active{{end}}" href="{{.Base}}bench/"
-               {{- if eq .Active "bench"}} aria-current="page"{{end}}>Бенчмарки</a>
+            <a class="nav-link{{if eq .Active "bench"}} active{{end}}" href="{{.Home}}bench/"
+               {{- if eq .Active "bench"}} aria-current="page"{{end}}>{{t "nav.bench"}}</a>
           </li>
           <li class="nav-item"><a class="nav-link" href="https://github.com/Sysoev973/Proks">GitHub</a></li>
           <li class="nav-item dropdown">
             <button class="btn btn-link nav-link dropdown-toggle" id="themeMenu" type="button"
-                    data-bs-toggle="dropdown" aria-expanded="false" aria-label="Тема оформления">
-              <span class="theme-icon" aria-hidden="true">◐</span><span class="d-lg-none ms-2">Тема</span>
+                    data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{t "theme.label"}}">
+              <span class="theme-icon" aria-hidden="true">◐</span><span class="d-lg-none ms-2">{{t "theme.short"}}</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeMenu">
-              <li><button class="dropdown-item" type="button" data-theme-value="light" aria-pressed="false">☀ Светлая</button></li>
-              <li><button class="dropdown-item" type="button" data-theme-value="dark" aria-pressed="false">☾ Тёмная</button></li>
-              <li><button class="dropdown-item" type="button" data-theme-value="auto" aria-pressed="false">◐ Как в системе</button></li>
+              <li><button class="dropdown-item" type="button" data-theme-value="light" aria-pressed="false">{{t "theme.light"}}</button></li>
+              <li><button class="dropdown-item" type="button" data-theme-value="dark" aria-pressed="false">{{t "theme.dark"}}</button></li>
+              <li><button class="dropdown-item" type="button" data-theme-value="auto" aria-pressed="false">{{t "theme.auto"}}</button></li>
             </ul>
           </li>
+          {{- range .Langs}}{{if not .Current}}
+          <li class="nav-item">
+            <a class="nav-link" href="{{.URL}}" hreflang="{{.Code}}" lang="{{.Code}}" title="{{.Name}}"
+               aria-label="{{t "lang.switch"}}: {{.Name}}">{{.Short}}</a>
+          </li>
+          {{- end}}{{end}}
         </ul>
       </div>
     </div>
@@ -71,9 +80,9 @@
     <div class="container d-flex flex-column flex-sm-row justify-content-between gap-2">
       <span>Proks</span>
       <span>
-        <a class="link-light" href="https://github.com/Sysoev973/Proks">Proks на GitHub</a>
+        <a class="link-light" href="https://github.com/Sysoev973/Proks">{{t "footer.proks"}}</a>
         ·
-        <a class="link-light" href="https://github.com/Sysoev973/Proks_site">исходник сайта</a>
+        <a class="link-light" href="https://github.com/Sysoev973/Proks_site">{{t "footer.site"}}</a>
       </span>
     </div>
   </footer>
