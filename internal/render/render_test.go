@@ -23,6 +23,11 @@ func TestRenderIndexUsesBase(t *testing.T) {
 		`href="/Proks_site/static/css/site.css"`,
 		`href="/Proks_site/#about"`,
 		`Что такое Proks`,
+		// Переключатель темы: скрипт от базового пути и все три варианта.
+		`src="/Proks_site/static/js/theme.js"`,
+		`data-theme-value="light"`,
+		`data-theme-value="dark"`,
+		`data-theme-value="auto"`,
 	} {
 		if !strings.Contains(html, want) {
 			t.Errorf("в странице нет %q", want)
