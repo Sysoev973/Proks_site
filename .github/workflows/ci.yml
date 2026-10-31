@@ -14,15 +14,21 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Свежая копия Proks: из неё сборщик берёт README.md и docs/.
+      - uses: actions/checkout@v5
+        with:
+          repository: Sysoev973/Proks
+          path: _proks
+
+      # Кэш модулей Go включён по умолчанию, ключ — хэш go.sum.
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
-          # Кэш модулей включим, когда появятся зависимости и go.sum (этап 4).
-          cache: false
 
+      # Только свой код: в _proks/ лежит чужой репозиторий.
       - name: gofmt
         run: |
-          unformatted=$(gofmt -l .)
+          unformatted=$(gofmt -l cmd internal)
           if [ -n "$unformatted" ]; then
             echo "Не отформатированы gofmt:"
             echo "$unformatted"
@@ -36,4 +42,7 @@ jobs:
         run: go test ./...
 
       - name: Пробная сборка
-        run: go run ./cmd/build -base /Proks_site/
+        run: go run ./cmd/build -base /Proks_site/ -proks _proks
+        env:
+          # С токеном лимит GitHub API — 1000 запросов в час на репозиторий вместо 60 на IP.
+          GITHUB_TOKEN: ${{ github.token }}

@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/Sysoev973/Proks_site/internal/source"
 )
 
 func TestRenderIndexUsesBase(t *testing.T) {
@@ -30,6 +33,40 @@ func TestRenderIndexUsesBase(t *testing.T) {
 	for _, bad := range []string{`href="/static/`, `src="/static/`} {
 		if strings.Contains(html, bad) {
 			t.Errorf("в странице есть ссылка от корня домена %q", bad)
+		}
+	}
+}
+
+func TestRenderDocsAndChangelog(t *testing.T) {
+	r := New("../../templates")
+	pages := map[string]Page{
+		"docs.html": {Base: "/Proks_site/", Title: "Docs", Active: "docs", Data: DocsData{
+			Nav:       []NavLink{{Title: "Обзор", URL: "/Proks_site/docs/", Active: true}},
+			Content:   "<p>текст документа</p>",
+			SourceURL: "https://github.com/Sysoev973/Proks/blob/main/README.md",
+		}},
+		"changelog.html": {Base: "/Proks_site/", Title: "Изменения", Active: "changelog", Data: ChangelogData{
+			Releases: []ReleaseView{{Release: source.Release{Name: "v1", Tag: "v1.0.0", Published: time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC)}, BodyHTML: "<p>notes</p>"}},
+			Commits:  []source.Commit{{SHA: "0123456789abcdef", Message: "feat: x", Date: time.Date(2026, 10, 2, 0, 0, 0, 0, time.UTC)}},
+		}},
+	}
+	wants := map[string][]string{
+		"docs.html":      {`<p>текст документа</p>`, `aria-current="page">Обзор</a>`, `class="nav-link active" href="/Proks_site/docs/"`},
+		"changelog.html": {`v1.0.0`, `01.10.2026`, `>0123456<`, `feat: x`, `class="nav-link active" href="/Proks_site/changelog/"`},
+	}
+	for name, p := range pages {
+		var buf bytes.Buffer
+		if err := r.Render(&buf, name, p); err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		html := buf.String()
+		for _, want := range wants[name] {
+			if !strings.Contains(html, want) {
+				t.Errorf("%s: нет %q", name, want)
+			}
+		}
+		if strings.Contains(html, `href="/static/`) || strings.Contains(html, `href="/docs/`) {
+			t.Errorf("%s: есть ссылка от корня домена", name)
 		}
 	}
 }

@@ -7,14 +7,46 @@ import (
 	"io"
 	"path/filepath"
 	"strings"
+
+	"github.com/Sysoev973/Proks_site/internal/source"
 )
 
 // Page — данные, которые получает каждый шаблон.
 type Page struct {
-	// Base — путь, от которого строятся все ссылки сайта, например "/Proks_site/".
-	// Всегда начинается и заканчивается на "/".
 	Base  string
 	Title string
+	// Active — раздел для подсветки в меню: "home", "docs" или "changelog".
+	Active string
+	// Data — данные конкретной страницы: DocsData, ChangelogData или nil.
+	Data any
+}
+
+// NavLink — пункт бокового меню документации.
+type NavLink struct {
+	Title  string
+	URL    string
+	Active bool
+}
+
+// DocsData — данные шаблона docs.html.
+type DocsData struct {
+	Nav       []NavLink
+	Content   template.HTML
+	SourceURL string // документ на GitHub
+}
+
+// ReleaseView — релиз с уже отрендеренным описанием.
+type ReleaseView struct {
+	source.Release
+	BodyHTML template.HTML
+}
+
+// ChangelogData — данные шаблона changelog.html.
+type ChangelogData struct {
+	Releases    []ReleaseView
+	Commits     []source.Commit
+	ReleasesURL string
+	CommitsURL  string
 }
 
 // Renderer рендерит страницы: общий каркас layout.html плюс шаблон страницы.
