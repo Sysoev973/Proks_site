@@ -27,7 +27,7 @@ go test ./...
 
 ## Публикация
 
-Сайт публикует workflow `.github/workflows/deploy.yml`: клонирует Proks, собирает `dist/` и выкладывает его на GitHub Pages (Settings → Pages → Source: GitHub Actions). Он запускается:
+Сайт публикует workflow `.github/workflows/deploy.yml`: клонирует Proks, собирает `dist/` и выкладывает его на GitHub Pages. Он запускается:
 
 - при push в `main` — после мерджа PR;
 - по событию `repository_dispatch` с типом `proks-updated` — его присылает Proks, когда меняются `README.md`, `docs/` или выходит релиз;
