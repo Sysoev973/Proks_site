@@ -1,0 +1,60 @@
+name: Deploy
+
+on:
+  # Изменения самого сайта.
+  push:
+    branches: [main]
+  # Сигнал из Proks: изменились README.md, docs/ или вышел релиз (этап 6).
+  repository_dispatch:
+    types: [proks-updated]
+  # Кнопка Run workflow во вкладке Actions.
+  workflow_dispatch:
+  # Страховка, если сигнал из Proks потерялся или истёк токен.
+  # 03:17 UTC = 06:17 МСК; не ровный час, потому что в :00 очередь раннеров длиннее.
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
+  pages: write    # публикация на Pages
+  id-token: write # deploy-pages подтверждает, что запуск идёт из этого репозитория
+
+# Push и dispatch не публикуют одновременно: второй запуск ждёт первый.
+# Начатую публикацию не прерываем, чтобы сайт не остался наполовину обновлённым.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/checkout@v5
+        with:
+          repository: Sysoev973/Proks
+          path: _proks
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Сборка сайта
+        run: go run ./cmd/build -base /Proks_site/ -proks _proks
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -7,7 +7,7 @@
 ## Стек
 
 - HTML + Bootstrap 5.3 (CDN)
-- Сборщик на Go (`html/template`, позже goldmark для Markdown)
+- Сборщик на Go (`html/template` + goldmark для Markdown)
 - GitHub Actions + GitHub Pages
 
 ## Сборка
@@ -25,4 +25,11 @@ go test ./...
 
 Сайт живёт в подпапке `/Proks_site/`, поэтому все ссылки строятся от `-base`. В Git Bash путь `/Proks_site/` подменяется на путь Windows, там запускайте с `MSYS_NO_PATHCONV=1` или из PowerShell.
 
-`index.html` в корне репозитория — временная копия страницы для публикации из ветки, её уберём, когда сайт начнёт публиковаться из Actions.
+## Публикация
+
+Сайт публикует workflow `.github/workflows/deploy.yml`: клонирует Proks, собирает `dist/` и выкладывает его на GitHub Pages (Settings → Pages → Source: GitHub Actions). Он запускается:
+
+- при push в `main` — после мерджа PR;
+- по событию `repository_dispatch` с типом `proks-updated` — его присылает Proks, когда меняются `README.md`, `docs/` или выходит релиз;
+- кнопкой Run workflow во вкладке Actions;
+- раз в сутки по расписанию как страховка. GitHub отключает расписание, если в репозитории 60 дней не было активности: тогда workflow нужно включить заново во вкладке Actions.
