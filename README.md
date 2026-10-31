@@ -7,9 +7,19 @@
 ## Стек
 
 - HTML + Bootstrap 5.3 (CDN)
-- Сборщик на Go (`html/template` + goldmark) — появится на следующих этапах
+- Сборщик на Go (`html/template`, позже goldmark для Markdown)
 - GitHub Actions + GitHub Pages
 
-## Локальный просмотр
+## Сборка
 
-Пока сайт — один файл: откройте `index.html` в браузере.
+Нужен Go 1.27+. Шаблоны лежат в `templates/`, стили в `static/`, готовый сайт собирается в `dist/` (в git не коммитится).
+
+```powershell
+go run ./cmd/build -base /Proks_site/               # собрать в dist/
+go run ./cmd/build -base /Proks_site/ -serve :8080  # собрать и открыть http://localhost:8080/Proks_site/
+go test ./...
+```
+
+Сайт живёт в подпапке `/Proks_site/`, поэтому все ссылки строятся от `-base`. В Git Bash путь `/Proks_site/` подменяется на путь Windows, там запускайте с `MSYS_NO_PATHCONV=1` или из PowerShell.
+
+`index.html` в корне репозитория — временная копия страницы для публикации из ветки, её уберём, когда сайт начнёт публиковаться из Actions.
