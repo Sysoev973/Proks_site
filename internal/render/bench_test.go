@@ -62,7 +62,8 @@ func TestNiceCeil(t *testing.T) {
 }
 
 func TestNewBenchData(t *testing.T) {
-	empty := NewBenchData(nil, "o/r", "bench-data")
+	ru, en, _ := testLangs(t)
+	empty := NewBenchData(nil, "o/r", "bench-data", ru)
 	if empty.Latest != nil || empty.HitChart != "" {
 		t.Errorf("без запусков: %+v", empty)
 	}
@@ -73,7 +74,7 @@ func TestNewBenchData(t *testing.T) {
 	d := NewBenchData([]source.BenchRun{
 		benchRun(1, f(0.40), f(0.58), f(2.2), f(1.7)),
 		benchRun(8, f(0.411), f(0.593), f(2.09), f(1.63)),
-	}, "o/r", "bench-data")
+	}, "o/r", "bench-data", ru)
 
 	if d.Runs != 2 || d.Latest.Date.Day() != 8 || d.ShortSHA != "0123456" {
 		t.Errorf("последний запуск: runs=%d day=%d sha=%q", d.Runs, d.Latest.Date.Day(), d.ShortSHA)
@@ -94,16 +95,31 @@ func TestNewBenchData(t *testing.T) {
 	if !strings.Contains(string(d.HitChart), "59.30%") {
 		t.Error("hit ratio на графике должен быть в процентах")
 	}
+
+	// Английская версия: подписи из en.json, ни одного ключа вместо текста.
+	dEn := NewBenchData([]source.BenchRun{benchRun(1, f(0.4), f(0.6), f(2), f(1.5))}, "o/r", "bench-data", en)
+	if r := dEn.Rows[1]; r.Name != "Authors p95" || r.Off != "2.00 ms" {
+		t.Errorf("en: %+v", r)
+	}
+	for _, r := range dEn.Rows {
+		if strings.HasPrefix(r.Name, "bench.") {
+			t.Errorf("нет перевода для %q", r.Name)
+		}
+	}
+	if !strings.Contains(string(dEn.P95Chart), "prefetching on, 01.11.26: 1.50 ms") {
+		t.Error("подсказки графика не переведены")
+	}
 }
 
 func TestRenderBench(t *testing.T) {
 	r := New("../../templates")
+	ru, _, all := testLangs(t)
 	for name, data := range map[string]BenchData{
-		"пусто":   NewBenchData(nil, "o/r", "bench-data"),
-		"запуски": NewBenchData([]source.BenchRun{benchRun(1, f(0.4), f(0.6), f(2), f(1.5))}, "o/r", "bench-data"),
+		"пусто":   NewBenchData(nil, "o/r", "bench-data", ru),
+		"запуски": NewBenchData([]source.BenchRun{benchRun(1, f(0.4), f(0.6), f(2), f(1.5))}, "o/r", "bench-data", ru),
 	} {
 		var buf bytes.Buffer
-		err := r.Render(&buf, "bench.html", Page{Base: "/Proks_site/", Title: "Бенчмарки", Active: "bench", Data: data})
+		err := r.Render(&buf, "bench.html", testPage(ru, all, "bench/", "bench", data))
 		if err != nil {
 			t.Fatalf("%s: %v", name, err)
 		}

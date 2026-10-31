@@ -3,7 +3,7 @@
     <div class="container">
       <div class="row g-4">
         <aside class="col-lg-3">
-          <nav class="docs-nav list-group" aria-label="Документы">
+          <nav class="docs-nav list-group" aria-label="{{t "docs.nav"}}">
             {{range .Data.Nav}}
             <a class="list-group-item list-group-item-action{{if .Active}} active{{end}}" href="{{.URL}}"
                {{- if .Active}} aria-current="page"{{end}}>{{.Title}}</a>
@@ -11,11 +11,12 @@
           </nav>
         </aside>
         <article class="col-lg-9">
+          {{with t "docs.note"}}<p class="alert alert-secondary small">{{.}}</p>{{end}}
           <div class="doc-content">
             {{.Data.Content}}
           </div>
           <hr class="my-4">
-          <a class="small" href="{{.Data.SourceURL}}">Открыть этот документ на GitHub</a>
+          <a class="small" href="{{.Data.SourceURL}}">{{t "docs.source"}}</a>
         </article>
       </div>
     </div>
