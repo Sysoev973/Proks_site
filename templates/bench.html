@@ -1,0 +1,63 @@
+{{define "content"}}
+  <main class="py-5">
+    <div class="container">
+      <h1 class="mb-3">Бенчмарки</h1>
+      <p class="lead">
+        A/B-замер предзагрузки по цепям Маркова: сценарий «карточка книги → её авторы»
+        (<code>k6/prefetch-chain.js</code>) с выключенной и включённой предзагрузкой.
+      </p>
+      <p class="text-body-secondary">
+        Замер идёт в GitHub Actions раз в неделю и при каждом релизе: Docker-стенд с PostgreSQL и RabbitMQ,
+        прогрев 20 с, замер 1 минута на режим. Раннеры GitHub общие и шумные, поэтому важен тренд,
+        а не отдельная точка. Главная метрика — p95 второго запроса цепочки (авторов).
+      </p>
+
+      {{with .Data}}
+      {{if .Latest}}
+      <div class="d-flex flex-wrap gap-3 small mb-3" aria-hidden="true">
+        <span><span class="chart-swatch chart-off"></span>без предзагрузки</span>
+        <span><span class="chart-swatch chart-on"></span>с предзагрузкой</span>
+      </div>
+      <div class="row g-4 mb-5">
+        <section class="col-lg-6">
+          <h2 class="h5">Hit ratio сервера</h2>
+          {{.HitChart}}
+        </section>
+        <section class="col-lg-6">
+          <h2 class="h5">p95 запроса авторов</h2>
+          {{.P95Chart}}
+        </section>
+      </div>
+
+      <section class="mb-4">
+        <h2 class="h4">Последний запуск</h2>
+        <p class="text-body-secondary small">
+          {{.Latest.Date.Format "02.01.2006 15:04"}} UTC ·
+          коммит <a class="font-monospace" href="{{.CommitURL}}">{{.ShortSHA}}</a> ·
+          <a href="{{.Latest.RunURL}}">лог запуска</a> · всего запусков: {{.Runs}}
+        </p>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle bench-table">
+            <thead>
+              <tr><th scope="col">Метрика</th><th scope="col" class="text-end">Без предзагрузки</th><th scope="col" class="text-end">С предзагрузкой</th></tr>
+            </thead>
+            <tbody>
+              {{range .Rows}}
+              <tr><th scope="row" class="fw-normal">{{.Name}}</th><td class="text-end">{{.Off}}</td><td class="text-end">{{.On}}</td></tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      {{else}}
+      <p class="alert alert-secondary">Замеров пока нет: workflow ещё ни разу не запускался.</p>
+      {{end}}
+
+      <p class="small">
+        <a href="{{.WorkflowURL}}">Workflow bench.yml</a> ·
+        <a href="{{.DataURL}}">сырые данные (history.json)</a>
+      </p>
+      {{end}}
+    </div>
+  </main>
+{{end}}

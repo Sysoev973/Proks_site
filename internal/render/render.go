@@ -15,9 +15,9 @@ import (
 type Page struct {
 	Base  string
 	Title string
-	// Active — раздел для подсветки в меню: "home", "docs" или "changelog".
+	// Active — раздел для подсветки в меню: "home", "docs", "changelog" или "bench".
 	Active string
-	// Data — данные конкретной страницы: DocsData, ChangelogData или nil.
+	// Data — данные конкретной страницы: DocsData, ChangelogData, BenchData или nil.
 	Data any
 }
 
