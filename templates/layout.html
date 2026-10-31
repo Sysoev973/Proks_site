@@ -44,6 +44,10 @@
             <a class="nav-link{{if eq .Active "changelog"}} active{{end}}" href="{{.Base}}changelog/"
                {{- if eq .Active "changelog"}} aria-current="page"{{end}}>Изменения</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link{{if eq .Active "bench"}} active{{end}}" href="{{.Base}}bench/"
+               {{- if eq .Active "bench"}} aria-current="page"{{end}}>Бенчмарки</a>
+          </li>
           <li class="nav-item"><a class="nav-link" href="https://github.com/Sysoev973/Proks">GitHub</a></li>
           <li class="nav-item dropdown">
             <button class="btn btn-link nav-link dropdown-toggle" id="themeMenu" type="button"

@@ -80,6 +80,18 @@ func TestGitHub(t *testing.T) {
 				t.Errorf("sha = %q", r.URL.Query().Get("sha"))
 			}
 			w.Write([]byte(`[{"sha":"abc123","html_url":"https://x/c","commit":{"message":"feat: x\n\nподробности","author":{"date":"2026-10-02T10:00:00Z"}}}]`))
+		case "/repos/o/r/contents/history.json":
+			if r.URL.Query().Get("ref") != "bench-data" {
+				t.Errorf("ref = %q", r.URL.Query().Get("ref"))
+			}
+			if got := r.Header.Get("Accept"); got != "application/vnd.github.raw+json" {
+				t.Errorf("Accept = %q", got)
+			}
+			w.Write([]byte(`[{"date":"2026-11-02T04:30:00Z","sha":"abc123",
+				"prefetch_off":{"latency_ms":{"authors":{"p95":2.1}},"server":{"hit_ratio":0.41,"useless_prefetch_share":null}},
+				"prefetch_on":{"latency_ms":{"authors":{"p95":1.6}},"server":{"hit_ratio":0.59}}}]`))
+		case "/repos/o/empty/contents/history.json":
+			http.Error(w, `{"message":"No commit found for the ref bench-data"}`, http.StatusNotFound)
 		default:
 			http.Error(w, `{"message":"API rate limit exceeded"}`, http.StatusForbidden)
 		}
@@ -107,6 +119,27 @@ func TestGitHub(t *testing.T) {
 	}
 
 	if _, err := gh.Releases(ctx, "o/missing", 5); err == nil {
+		t.Error("ожидали ошибку на 403")
+	}
+
+	runs, err := gh.BenchHistory(ctx, "o/r", "bench-data")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(runs) != 1 || *runs[0].On.Latency.Authors.P95 != 1.6 || *runs[0].Off.Server.HitRatio != 0.41 {
+		t.Errorf("runs = %+v", runs)
+	}
+	if runs[0].Off.Server.UselessPrefetch != nil || runs[0].On.Latency.Card.P95 != nil {
+		t.Error("null и пропущенные поля должны остаться nil")
+	}
+
+	// Ветки bench-data ещё нет: это не ошибка, а пустая история.
+	runs, err = gh.BenchHistory(ctx, "o/empty", "bench-data")
+	if err != nil || runs != nil {
+		t.Errorf("пустая история: runs = %v, err = %v", runs, err)
+	}
+	// Другие ошибки API не глотаются.
+	if _, err := gh.BenchHistory(ctx, "o/missing", "bench-data"); err == nil {
 		t.Error("ожидали ошибку на 403")
 	}
 }

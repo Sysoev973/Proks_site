@@ -27,6 +27,7 @@ import (
 type config struct {
 	base, out, templates, static string
 	proks, repo, branch          string
+	benchBranch                  string
 }
 
 func main() {
@@ -38,6 +39,7 @@ func main() {
 	flag.StringVar(&c.proks, "proks", "_proks", "локальная копия репозитория Proks")
 	flag.StringVar(&c.repo, "repo", "Sysoev973/Proks", "репозиторий Proks на GitHub (для API и ссылок)")
 	flag.StringVar(&c.branch, "branch", "main", "ветка Proks, на файлы которой ведут ссылки")
+	flag.StringVar(&c.benchBranch, "bench-branch", "bench-data", "ветка Proks с history.json от bench.yml")
 	serve := flag.String("serve", "", "после сборки раздавать сайт по этому адресу, например :8080")
 	flag.Parse()
 
@@ -65,6 +67,10 @@ func build(ctx context.Context, c config, gh *source.GitHub) error {
 		return err
 	}
 	commits, err := gh.Commits(ctx, c.repo, c.branch, 10)
+	if err != nil {
+		return err
+	}
+	bench, err := gh.BenchHistory(ctx, c.repo, c.benchBranch)
 	if err != nil {
 		return err
 	}
@@ -122,6 +128,13 @@ func build(ctx context.Context, c config, gh *source.GitHub) error {
 			ReleasesURL: "https://github.com/" + c.repo + "/releases",
 			CommitsURL:  "https://github.com/" + c.repo + "/commits/" + c.branch,
 		},
+	}); err != nil {
+		return err
+	}
+
+	if err := writePage(r, c.out, "bench/", "bench.html", render.Page{
+		Base: c.base, Title: "Бенчмарки — Proks", Active: "bench",
+		Data: render.NewBenchData(bench, c.repo, c.benchBranch),
 	}); err != nil {
 		return err
 	}

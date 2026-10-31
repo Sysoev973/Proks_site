@@ -3,6 +3,7 @@ package source
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -85,12 +86,20 @@ func (g *GitHub) Commits(ctx context.Context, repo, branch string, n int) ([]Com
 	return commits, nil
 }
 
+// ErrNotFound — API ответил 404: нет репозитория, ветки или файла.
+var ErrNotFound = errors.New("not found")
+
 func (g *GitHub) get(ctx context.Context, path string, v any) error {
+	return g.getAs(ctx, path, "application/vnd.github+json", v)
+}
+
+// getAs делает GET path с заголовком Accept и разбирает JSON из ответа в v.
+func (g *GitHub) getAs(ctx context.Context, path, accept string, v any) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, g.API+path, nil)
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Accept", "application/vnd.github+json")
+	req.Header.Set("Accept", accept)
 	req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
 	if g.Token != "" {
 		req.Header.Set("Authorization", "Bearer "+g.Token)
@@ -102,6 +111,9 @@ func (g *GitHub) get(ctx context.Context, path string, v any) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusNotFound {
+		return fmt.Errorf("GET %s: %w", path, ErrNotFound)
+	}
 	if resp.StatusCode != http.StatusOK {
 		// Начало тела ответа объясняет причину, например превышение лимита запросов.
 		msg, _ := io.ReadAll(io.LimitReader(resp.Body, 300))

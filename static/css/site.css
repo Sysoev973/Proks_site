@@ -79,6 +79,67 @@ section[id] {
   margin-top: 0;
 }
 
+/* Графики бенчмарков: SVG рисует сборщик (internal/render/chart.go), цвета — переменные Bootstrap,
+   поэтому графики сами перекрашиваются в тёмной теме. */
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart-grid {
+  stroke: var(--bs-border-color);
+  stroke-width: 1;
+}
+
+.chart-label {
+  fill: var(--bs-secondary-color);
+  font-size: 12px;
+}
+
+.chart-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.chart-line.chart-off,
+.chart-dot.chart-off {
+  stroke: var(--bs-secondary-color);
+}
+
+.chart-line.chart-on,
+.chart-dot.chart-on {
+  stroke: var(--bs-primary);
+}
+
+.chart-line.chart-off {
+  stroke-dasharray: 6 4;
+}
+
+.chart-dot {
+  fill: var(--bs-body-bg);
+  stroke-width: 2;
+}
+
+.chart-swatch {
+  display: inline-block;
+  width: 1.5rem;
+  height: 0;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  border-top: 2px solid var(--bs-primary);
+}
+
+.chart-swatch.chart-off {
+  border-top: 2px dashed var(--bs-secondary-color);
+}
+
+.bench-table td {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 /* Схема архитектуры: на телефоне блоки идут столбиком со стрелками вниз, с 768px — в строку. */
 .flow {
   display: flex;
