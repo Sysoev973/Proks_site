@@ -1,37 +1,405 @@
-/* Свои стили поверх Bootstrap 5.3. Цвета берём из переменных Bootstrap, чтобы потом работала тёмная тема. */
+/* Свои стили поверх Bootstrap 5.3. Оформление — тёмный «терминальный брутализм» (docs/Оформление.md):
+   почти чёрный фон, жирный логотип, моноширинные подписи капсом.
+   Компоненты Bootstrap не переписываем, а перекрашиваем через его CSS-переменные. */
+
+:root {
+  --px-bg: #080808;
+  --px-surface: #121212;
+  --px-surface-2: #141414;
+  --px-border: #242424;
+  --px-fg: #e8e8e8;
+  --px-accent: #e0053c;
+  --px-accent-hover: #b8042f;
+  --px-amber: #feaa03;
+  --px-go: #00add8; /* фирменный цвет Go */
+  --px-font-display: "Unbounded", "Arial Black", sans-serif;
+}
+
+/* Тот же селектор, что у Bootstrap, но файл подключён позже — наши значения побеждают. */
+[data-bs-theme="dark"] {
+  color-scheme: dark;
+  --bs-body-bg: var(--px-bg);
+  --bs-body-bg-rgb: 8, 8, 8;
+  --bs-body-color: var(--px-fg);
+  --bs-body-color-rgb: 232, 232, 232;
+  --bs-emphasis-color: #fff;
+  --bs-secondary-color: rgba(232, 232, 232, 0.6);
+  --bs-secondary-bg: var(--px-surface-2);
+  --bs-tertiary-bg: var(--px-surface);
+  --bs-tertiary-bg-rgb: 18, 18, 18;
+  --bs-border-color: var(--px-border);
+  --bs-border-color-translucent: rgba(255, 255, 255, 0.08);
+  --bs-primary: var(--px-accent);
+  --bs-primary-rgb: 224, 5, 60;
+  --bs-primary-bg-subtle: #22050d;
+  --bs-primary-border-subtle: #6b0a24;
+  --bs-primary-text-emphasis: #ff6b8e;
+  --bs-link-color: var(--px-go);
+  --bs-link-color-rgb: 0, 173, 216;
+  --bs-link-hover-color: #6fd8f2;
+  --bs-link-hover-color-rgb: 111, 216, 242;
+  --bs-code-color: var(--px-amber);
+  --bs-focus-ring-color: rgba(224, 5, 60, 0.4);
+  --bs-body-font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bs-font-monospace: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+  --bs-border-radius: 0.125rem;
+  --bs-border-radius-sm: 0.125rem;
+  --bs-border-radius-lg: 0.25rem;
+}
 
 /* Якоря не прячутся под sticky-навбаром */
 section[id] {
   scroll-margin-top: 4rem;
 }
 
-.hero {
-  background: linear-gradient(135deg, #0b3d91 0%, #1f6feb 100%);
-}
-
-/* Тёмная тема. Почти всё перекрашивает сам Bootstrap через data-bs-theme,
-   здесь только то, что задано своими цветами. */
-[data-bs-theme="dark"] .hero {
-  background: linear-gradient(135deg, #082a66 0%, #1550b0 100%);
-}
-
-/* Фон страницы в тёмной теме почти совпадает с bg-dark: отделяем навбар и футер линией. */
-[data-bs-theme="dark"] .site-nav {
-  border-bottom: 1px solid var(--bs-border-color);
-}
-
-[data-bs-theme="dark"] .site-footer {
-  border-top: 1px solid var(--bs-border-color);
-}
-
-.stat {
-  background-color: var(--bs-tertiary-bg);
-}
-
-.stat-value {
-  font-size: 1.75rem;
+h1,
+h2 {
+  font-family: var(--px-font-display);
   font-weight: 700;
-  color: var(--bs-primary);
+}
+
+/* Моноширинные подписи капсом: меню, чипы, строка в футере. */
+.mono-caps {
+  font-family: var(--bs-font-monospace);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Логотип: PRO красным, KS белым, маленькое .go голубым. */
+.wordmark {
+  font-family: var(--px-font-display);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.wordmark-accent {
+  color: var(--px-accent);
+}
+
+.wordmark-go {
+  margin-left: 0.04em;
+  font-family: var(--bs-font-monospace);
+  font-size: 0.32em;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--px-go);
+}
+
+.wordmark-sm {
+  font-size: 1.35rem;
+}
+
+/* В маленьком логотипе 0.32em — это 7px, не читается. */
+.wordmark-sm .wordmark-go {
+  font-size: 0.5em;
+}
+
+.wordmark-xl {
+  margin: 0 0 2rem;
+  font-size: clamp(3.5rem, 17vw, 10rem);
+}
+
+/* Навбар */
+.site-nav {
+  --bs-navbar-color: rgba(232, 232, 232, 0.7);
+  --bs-navbar-hover-color: #fff;
+  --bs-navbar-active-color: var(--px-accent);
+  background-color: rgba(8, 8, 8, 0.92);
+  border-bottom: 1px solid var(--px-border);
+  backdrop-filter: blur(6px);
+}
+
+.site-nav .nav-link {
+  font-size: inherit;
+}
+
+.nav-lang {
+  color: var(--px-amber) !important;
+}
+
+/* Первый экран */
+.hero {
+  padding: 4.5rem 0 3rem;
+  border-bottom: 1px solid var(--px-border);
+}
+
+.hero .container {
+  position: relative;
+}
+
+.stars-pill {
+  position: absolute;
+  top: -2.5rem;
+  right: var(--bs-gutter-x, 0.75rem);
+  padding: 0.25rem 0.85rem;
+  border: 1px solid var(--px-amber);
+  border-radius: 50rem;
+  font-family: var(--bs-font-monospace);
+  font-size: 0.8rem;
+  color: var(--px-amber);
+  text-decoration: none;
+}
+
+.stars-pill:hover {
+  background-color: var(--px-amber);
+  color: #000;
+}
+
+.hero-quote {
+  max-width: 46rem;
+  margin-bottom: 2rem;
+  padding-left: 1.25rem;
+  border-left: 4px solid var(--px-accent);
+}
+
+.hero-tagline {
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Строка статистики. Капс набран в словаре, а не text-transform: иначе «µs» превратится в «ΜS». */
+.stat-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0;
+  margin-bottom: 1.5rem;
+  font-family: var(--bs-font-monospace);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--bs-secondary-color);
+}
+
+.stat-line span + span::before {
+  content: "•";
+  margin: 0 0.75rem;
+  color: var(--px-border);
+}
+
+.stat-line b {
+  font-weight: 700;
+  color: var(--px-amber);
+}
+
+/* Чипы разделов документации */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--px-border);
+  background-color: var(--px-surface);
+  font-family: var(--bs-font-monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--px-fg);
+  text-decoration: none;
+}
+
+.chip:hover,
+.chip:focus-visible {
+  border-color: var(--px-accent);
+  color: #fff;
+}
+
+/* Секции */
+.section-surface {
+  background-color: var(--px-surface);
+  border-top: 1px solid var(--px-border);
+  border-bottom: 1px solid var(--px-border);
+}
+
+.section-h {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+.flow-h {
+  margin-bottom: 1rem;
+  color: var(--bs-secondary-color);
+}
+
+/* Кнопки */
+.btn-accent,
+.btn-ghost,
+.btn-gradient {
+  font-family: var(--bs-font-monospace);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.7rem 1.25rem;
+}
+
+.btn-accent {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--px-accent);
+  --bs-btn-border-color: var(--px-accent);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--px-accent-hover);
+  --bs-btn-hover-border-color: var(--px-accent-hover);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--px-accent-hover);
+  --bs-btn-active-border-color: var(--px-accent-hover);
+}
+
+.btn-ghost {
+  --bs-btn-color: var(--px-fg);
+  --bs-btn-border-color: var(--px-border);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-border-color: var(--px-fg);
+  --bs-btn-active-border-color: var(--px-fg);
+}
+
+/* Рамка-градиент: border-image не дружит со скруглением, поэтому два фона — внутренний и рамка. */
+.btn-gradient {
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--px-bg), var(--px-bg)) padding-box,
+    linear-gradient(90deg, var(--px-accent), var(--px-amber), var(--px-go)) border-box;
+}
+
+.btn-gradient:hover {
+  background:
+    linear-gradient(var(--px-surface), var(--px-surface)) padding-box,
+    linear-gradient(90deg, var(--px-go), var(--px-amber), var(--px-accent)) border-box;
+}
+
+/* Карточки и списки Bootstrap в палитре сайта */
+.card {
+  --bs-card-bg: var(--px-surface);
+  --bs-card-border-color: var(--px-border);
+  --bs-card-cap-bg: var(--px-surface-2);
+}
+
+.list-group {
+  --bs-list-group-bg: var(--px-surface);
+  --bs-list-group-border-color: var(--px-border);
+  --bs-list-group-active-bg: var(--px-accent);
+  --bs-list-group-active-border-color: var(--px-accent);
+  --bs-list-group-action-hover-bg: var(--px-surface-2);
+}
+
+/* Карточки модулей */
+.module-card {
+  position: relative;
+  transition: border-color 0.15s;
+}
+
+.module-card:hover {
+  border-color: #3a3a3a;
+}
+
+.module-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0;
+  background-color: var(--px-amber);
+  font-family: var(--bs-font-monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: #000;
+}
+
+.module-badge-new {
+  background-color: var(--px-accent);
+  color: #fff;
+}
+
+.module-name {
+  margin-bottom: 0.75rem;
+  font-family: var(--bs-font-monospace);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.tag {
+  border: 1px solid var(--px-border);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--bs-font-monospace);
+  font-weight: 400;
+  color: var(--bs-secondary-color);
+}
+
+.module-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  font-family: var(--bs-font-monospace);
+  font-size: 0.72rem;
+  color: var(--bs-secondary-color);
+}
+
+/* Футер */
+.site-footer {
+  background-color: #0b0b0b;
+  border-top: 1px solid var(--px-border);
+}
+
+.site-footer a {
+  color: var(--px-fg);
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: var(--px-accent);
+}
+
+.footer-h {
+  margin-bottom: 0.75rem;
+  font-family: var(--bs-font-monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+}
+
+.footer-line {
+  padding-top: 1rem;
+  border-top: 1px solid var(--px-border);
+  font-size: 0.7rem;
+  color: var(--bs-secondary-color);
+}
+
+.footer-line a {
+  color: var(--px-go) !important;
+}
+
+/* Круглая кнопка «наверх» */
+.to-top {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1030;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--px-border);
+  border-radius: 50%;
+  background-color: var(--px-surface);
+  font-size: 1.1rem;
+  color: var(--px-fg);
+  text-decoration: none;
+}
+
+.to-top:hover,
+.to-top:focus-visible {
+  border-color: var(--px-accent);
+  color: var(--px-accent);
 }
 
 /* Документация из Markdown */

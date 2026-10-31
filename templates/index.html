@@ -1,93 +1,82 @@
 {{define "content"}}
-  <header class="hero text-white py-5">
-    <div class="container py-md-4">
-      <h1 class="display-5 fw-bold">Proks</h1>
-      <p class="lead col-lg-8">{{t "home.lead"}}</p>
-      <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-light btn-lg" href="https://github.com/Sysoev973/Proks">{{t "home.btn_source"}}</a>
-        <a class="btn btn-outline-light btn-lg" href="#architecture">{{t "home.btn_arch"}}</a>
-      </div>
+  <header class="hero">
+    <div class="container">
+      <a class="stars-pill" href="https://github.com/{{.Site.Repo}}" aria-label="{{.Site.Stars}} {{t "stars.label"}}">{{.Site.Stars}} ★</a>
+      <h1 class="wordmark wordmark-xl"><span class="wordmark-accent">PRO</span>KS<span class="wordmark-go">.go</span></h1>
+      <blockquote class="hero-quote">
+        <p class="hero-tagline">{{t "home.tagline"}}</p>
+        <p class="mb-0 text-body-secondary">{{t "home.lead"}}</p>
+      </blockquote>
+
+      {{with .Data}}
+      <p class="stat-line">
+        <span title="{{t "home.stat_hit_note"}}">{{t "home.stat_hit"}}</span>
+        <span title="{{t "home.stat_ratio_note"}}">{{t "home.stat_ratio"}}</span>
+        <span>{{t "home.stat_modules"}} <b>{{len .Modules}}</b></span>
+        {{if .GoVersion}}<span>GO <b>{{.GoVersion}}</b></span>{{end}}
+      </p>
+
+      <nav class="chips" aria-label="{{t "nav.docs"}}">
+        {{range .Chips}}<a class="chip" href="{{.URL}}">{{t .Label}}</a>{{end}}
+      </nav>
+      {{end}}
     </div>
   </header>
 
   <main>
-    <section id="about" class="py-5">
+    <section id="about" class="py-5 section-surface">
       <div class="container">
-        <div class="row g-4 align-items-center">
-          <div class="col-lg-7">
-            <h2 class="h1 mb-3">{{t "home.about_h"}}</h2>
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <h2 class="section-h">{{t "home.about_h"}}</h2>
+          </div>
+          <div class="col-lg-8">
             <p>{{t "home.about_p1"}}</p>
-            <p class="mb-0">{{t "home.about_p2"}}</p>
-          </div>
-          <div class="col-lg-5">
-            <div class="row g-3 text-center">
-              <div class="col-6">
-                <div class="stat p-3 rounded-3 h-100">
-                  <div class="stat-value">{{t "home.stat_hit_value"}}</div>
-                  <div class="small text-body-secondary">{{t "home.stat_hit"}}</div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="stat p-3 rounded-3 h-100">
-                  <div class="stat-value">{{t "home.stat_p95_value"}}</div>
-                  <div class="small text-body-secondary">{{t "home.stat_p95"}}</div>
-                </div>
-              </div>
-              <div class="col-12">
-                <p class="small text-body-secondary mb-0">{{t "home.stat_note"}}</p>
-              </div>
+            <p class="mb-4">{{t "home.about_p2"}}</p>
+            <div class="d-flex flex-wrap gap-2">
+              <a class="btn btn-accent" href="https://github.com/{{.Site.Repo}}">{{t "home.btn_source"}}</a>
+              <a class="btn btn-ghost" href="#architecture">{{t "home.btn_arch"}}</a>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="features" class="py-5 bg-body-tertiary">
+    <section id="modules" class="py-5">
       <div class="container">
-        <h2 class="h1 mb-4">{{t "home.features_h"}}</h2>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+        <h2 class="section-h mb-4">{{t "home.modules_h"}}</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+          {{range .Data.Modules}}
           <div class="col">
-            <div class="card h-100 shadow-sm">
+            <article class="card module-card h-100">
+              {{if .Badge}}<span class="badge module-badge{{if eq .Badge "NEW"}} module-badge-new{{end}}">{{.Badge}}</span>{{end}}
               <div class="card-body">
-                <h3 class="card-title h5">{{t "home.f1_h"}}</h3>
-                <p class="card-text">{{t "home.f1_p"}}</p>
+                <h3 class="module-name">{{.Name}}</h3>
+                <p class="card-text">{{t (printf "mod.%s" .Name)}}</p>
+                <div class="d-flex flex-wrap gap-1">
+                  {{range .Tags}}<span class="badge tag">#{{.}}</span>{{end}}
+                </div>
               </div>
-              <div class="card-footer bg-transparent small text-body-secondary">
-                {{t "home.f1_foot"}}
+              <div class="card-footer module-footer">
+                <span>internal/{{.Name}}</span>
+                <span>{{t "mod.tests"}} {{.Tests}}</span>
+                <a href="{{.URL}}">{{t "mod.code"}} →</a>
               </div>
-            </div>
+            </article>
           </div>
-          <div class="col">
-            <div class="card h-100 shadow-sm">
-              <div class="card-body">
-                <h3 class="card-title h5">{{t "home.f2_h"}}</h3>
-                <p class="card-text">{{t "home.f2_p"}}</p>
-              </div>
-              <div class="card-footer bg-transparent small text-body-secondary">
-                {{t "home.f2_foot"}}
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card h-100 shadow-sm">
-              <div class="card-body">
-                <h3 class="card-title h5">{{t "home.f3_h"}}</h3>
-                <p class="card-text">{{t "home.f3_p"}}</p>
-              </div>
-              <div class="card-footer bg-transparent small text-body-secondary">
-                {{t "home.f3_foot"}}
-              </div>
-            </div>
-          </div>
+          {{end}}
+        </div>
+        <div class="text-center mt-5">
+          <a class="btn btn-gradient" href="{{.Home}}docs/">{{t "home.all_docs"}}</a>
         </div>
       </div>
     </section>
 
-    <section id="architecture" class="py-5">
+    <section id="architecture" class="py-5 section-surface">
       <div class="container">
-        <h2 class="h1 mb-4">{{t "home.arch_h"}}</h2>
+        <h2 class="section-h mb-4">{{t "home.arch_h"}}</h2>
 
-        <h3 class="h5 mb-3">{{t "home.arch_read"}}</h3>
+        <h3 class="mono-caps flow-h">{{t "home.arch_read"}}</h3>
         <div class="flow mb-5">
           <div class="flow-node">{{t "home.arch_client"}}</div>
           <div class="flow-arrow" aria-hidden="true"></div>
@@ -104,7 +93,7 @@
           <div class="flow-node">PostgreSQL</div>
         </div>
 
-        <h3 class="h5 mb-3">{{t "home.arch_write"}}</h3>
+        <h3 class="mono-caps flow-h">{{t "home.arch_write"}}</h3>
         <div class="flow">
           <div class="flow-node">
             <code>PUT /books/{id}</code>
