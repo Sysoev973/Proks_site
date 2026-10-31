@@ -12,6 +12,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -60,23 +61,67 @@ func main() {
 	}
 }
 
+// modules — карточки на главной: пакеты internal/ в Proks. Описания — mod.<имя> в словарях.
+// Пакета, которого нет в копии Proks, на сайте не будет: карточки не врут после переименований.
+var modules = []render.Module{
+	{Name: "proxy", Badge: "CORE", Tags: []string{"http", "singleflight", "swr"}},
+	{Name: "cache", Badge: "CORE", Tags: []string{"tinylfu", "lru", "sketch"}},
+	{Name: "predictor", Tags: []string{"markov", "ewma"}},
+	{Name: "prefetcher", Tags: []string{"prefetch", "workers"}},
+	{Name: "events", Badge: "NEW", Tags: []string{"rabbitmq", "outbox", "at-least-once"}},
+	{Name: "observability", Tags: []string{"prometheus", "metrics"}},
+}
+
+// chips — быстрые переходы с главной. Якоря — id заголовков README.md после goldmark;
+// если заголовок в Proks переименуют, чип пропадёт, а сборка напишет об этом в лог.
+var chips = []render.Chip{
+	{Label: "chip.run", URL: "docs/#план-запуска-и-тестирования-проекта"},
+	{Label: "chip.cache", URL: "docs/#политика-кэширования"},
+	{Label: "chip.invalidation", URL: "docs/#инвалидация-для-любого-api"},
+	{Label: "chip.prefetch", URL: "docs/#prefetch"},
+	{Label: "chip.replicas", URL: "docs/#несколько-реплик"},
+	{Label: "chip.bench", URL: "bench/"},
+	{Label: "chip.ci", URL: "docs/#покрытие-и-ci"},
+}
+
+// siteData — всё, что сборщик получил из Proks и GitHub; одинаково для всех языков.
+type siteData struct {
+	docs     []source.Doc
+	releases []source.Release
+	commits  []source.Commit
+	bench    []source.BenchRun
+	project  source.Project
+	site     render.Site
+}
+
 func build(ctx context.Context, c config, gh *source.GitHub) error {
 	// Сначала собираем все данные: если GitHub API недоступен, старый dist/ останется целым.
-	docs, err := source.LoadDocs(c.proks)
+	var d siteData
+	var err error
+	d.docs, err = source.LoadDocs(c.proks)
 	if err != nil {
 		return fmt.Errorf("%w (нужна копия Proks: git clone --depth 1 https://github.com/%s %s)", err, c.repo, c.proks)
 	}
-	releases, err := gh.Releases(ctx, c.repo, 10)
+	if d.project, err = source.LoadProject(c.proks); err != nil {
+		return err
+	}
+	if d.releases, err = gh.Releases(ctx, c.repo, 10); err != nil {
+		return err
+	}
+	if d.commits, err = gh.Commits(ctx, c.repo, c.branch, 10); err != nil {
+		return err
+	}
+	if d.bench, err = gh.BenchHistory(ctx, c.repo, c.benchBranch); err != nil {
+		return err
+	}
+	repo, err := gh.Repo(ctx, c.repo)
 	if err != nil {
 		return err
 	}
-	commits, err := gh.Commits(ctx, c.repo, c.branch, 10)
-	if err != nil {
-		return err
-	}
-	bench, err := gh.BenchHistory(ctx, c.repo, c.benchBranch)
-	if err != nil {
-		return err
+	d.site = render.Site{Repo: c.repo, Stars: repo.Stars, Year: time.Now().Year()}
+	if len(d.commits) > 0 {
+		d.site.SHA = d.commits[0].SHA
+		d.site.CommitURL = d.commits[0].URL
 	}
 	langs, err := render.LoadLangs(c.i18n, siteLangs)
 	if err != nil {
@@ -93,7 +138,7 @@ func build(ctx context.Context, c config, gh *source.GitHub) error {
 
 	r := render.New(c.templates)
 	for _, l := range langs {
-		if err := buildLang(r, c, l, langs, docs, releases, commits, bench); err != nil {
+		if err := buildLang(r, c, l, langs, d); err != nil {
 			return fmt.Errorf("%s: %w", l.Code, err)
 		}
 	}
@@ -103,13 +148,12 @@ func build(ctx context.Context, c config, gh *source.GitHub) error {
 
 // buildLang пишет все страницы сайта на языке l в <out>/<l.Prefix>.
 // Тексты из Proks (документация, релизы, коммиты) не переводятся, меняется только интерфейс вокруг них.
-func buildLang(r *render.Renderer, c config, l render.Lang, langs []render.Lang,
-	docs []source.Doc, releases []source.Release, commits []source.Commit, bench []source.BenchRun) error {
+func buildLang(r *render.Renderer, c config, l render.Lang, langs []render.Lang, d siteData) error {
 	home := c.base + l.Prefix
 	page := func(path, title, active string, data any) render.Page {
 		return render.Page{
 			Base: c.base, Home: home, Lang: l, Langs: render.Alternates(c.base, path, langs, l),
-			Title: title, Active: active, Data: data,
+			Site: d.site, Title: title, Active: active, Data: data,
 		}
 	}
 	write := func(path, name string, p render.Page) error {
@@ -118,31 +162,60 @@ func buildLang(r *render.Renderer, c config, l render.Lang, langs []render.Lang,
 
 	// Ссылки между документами ведут на страницы той же языковой версии.
 	links := render.Links{Base: home, Repo: c.repo, Branch: c.branch, Pages: map[string]string{}}
-	for _, d := range docs {
-		links.Pages[d.Path] = docPage(d.Path)
+	for _, doc := range d.docs {
+		links.Pages[doc.Path] = docPage(doc.Path)
 	}
 
-	if err := write("", "index.html", page("", l.Text("title.home"), "home", nil)); err != nil {
+	// Документы рендерим заранее: по README проверяем якоря чипов на главной.
+	contents := make([]template.HTML, len(d.docs))
+	var readme string
+	for i, doc := range d.docs {
+		content, err := render.Markdown(doc.Markdown, doc.Path, links)
+		if err != nil {
+			return fmt.Errorf("markdown %s: %w", doc.Path, err)
+		}
+		contents[i] = content
+		if doc.Path == "README.md" {
+			readme = string(content)
+		}
+	}
+
+	homeData := render.HomeData{GoVersion: d.project.GoVersion}
+	for _, m := range modules {
+		tests, ok := d.project.Tests[m.Name]
+		if !ok {
+			log.Printf("в %s нет internal/%s, карточка пропущена", c.proks, m.Name)
+			continue
+		}
+		m.Tests = tests
+		m.URL = "https://github.com/" + c.repo + "/tree/" + c.branch + "/internal/" + m.Name
+		homeData.Modules = append(homeData.Modules, m)
+	}
+	for _, ch := range chips {
+		if _, anchor, ok := strings.Cut(ch.URL, "#"); ok && !strings.Contains(readme, `id="`+anchor+`"`) {
+			log.Printf("в README нет заголовка #%s, чип %s пропущен", anchor, ch.Label)
+			continue
+		}
+		ch.URL = home + ch.URL
+		homeData.Chips = append(homeData.Chips, ch)
+	}
+	if err := write("", "index.html", page("", l.Text("title.home"), "home", homeData)); err != nil {
 		return err
 	}
 
-	for _, d := range docs {
-		content, err := render.Markdown(d.Markdown, d.Path, links)
-		if err != nil {
-			return fmt.Errorf("markdown %s: %w", d.Path, err)
+	for i, doc := range d.docs {
+		nav := make([]render.NavLink, len(d.docs))
+		for j, o := range d.docs {
+			nav[j] = render.NavLink{Title: o.Title, URL: home + docPage(o.Path), Active: o.Path == doc.Path}
 		}
-		nav := make([]render.NavLink, len(docs))
-		for i, o := range docs {
-			nav[i] = render.NavLink{Title: o.Title, URL: home + docPage(o.Path), Active: o.Path == d.Path}
-		}
-		data := render.DocsData{Nav: nav, Content: content, SourceURL: links.SourceURL(d.Path)}
-		if err := write(docPage(d.Path), "docs.html", page(docPage(d.Path), d.Title+" — Proks", "docs", data)); err != nil {
+		data := render.DocsData{Nav: nav, Content: contents[i], SourceURL: links.SourceURL(doc.Path)}
+		if err := write(docPage(doc.Path), "docs.html", page(docPage(doc.Path), doc.Title+" — Proks", "docs", data)); err != nil {
 			return err
 		}
 	}
 
-	views := make([]render.ReleaseView, len(releases))
-	for i, rel := range releases {
+	views := make([]render.ReleaseView, len(d.releases))
+	for i, rel := range d.releases {
 		body, err := render.Markdown([]byte(rel.Body), "", links)
 		if err != nil {
 			return fmt.Errorf("markdown релиза %s: %w", rel.Tag, err)
@@ -151,7 +224,7 @@ func buildLang(r *render.Renderer, c config, l render.Lang, langs []render.Lang,
 	}
 	changelog := render.ChangelogData{
 		Releases:    views,
-		Commits:     commits,
+		Commits:     d.commits,
 		ReleasesURL: "https://github.com/" + c.repo + "/releases",
 		CommitsURL:  "https://github.com/" + c.repo + "/commits/" + c.branch,
 	}
@@ -159,7 +232,7 @@ func buildLang(r *render.Renderer, c config, l render.Lang, langs []render.Lang,
 		return err
 	}
 
-	benchData := render.NewBenchData(bench, c.repo, c.benchBranch, l)
+	benchData := render.NewBenchData(d.bench, c.repo, c.benchBranch, l)
 	return write("bench/", "bench.html", page("bench/", l.Text("title.bench"), "bench", benchData))
 }
 

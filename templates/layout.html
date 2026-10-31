@@ -1,43 +1,35 @@
 {{define "layout" -}}
 <!doctype html>
-<html lang="{{.Lang.Code}}">
+<!-- Сайт только тёмный: так задумано оформление (docs/Оформление.md). Цвета — в static/css/site.css. -->
+<html lang="{{.Lang.Code}}" data-bs-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{.Title}}</title>
   <meta name="description" content="{{t "meta.description"}}">
+  <meta name="theme-color" content="#080808">
   {{- range .Langs}}
   <link rel="alternate" hreflang="{{.Code}}" href="{{.URL}}">
   {{- end}}
-  <script>
-    // Тема ставится до загрузки CSS, иначе тёмная страница на миг мигает светлой.
-    // Остальная логика переключателя — в static/js/theme.js.
-    (function () {
-      var t = null;
-      try { t = localStorage.getItem("theme"); } catch (e) {}
-      if (t !== "light" && t !== "dark") {
-        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      }
-      document.documentElement.setAttribute("data-bs-theme", t);
-    })();
-  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link href="{{.Base}}static/css/site.css" rel="stylesheet">
 </head>
-<body>
-  <!-- В 5.3 navbar-dark устарел: тёмные цвета навбара и его меню задаёт data-bs-theme. -->
-  <nav class="navbar navbar-expand-lg bg-dark sticky-top site-nav" data-bs-theme="dark">
+<body id="top">
+  <nav class="navbar navbar-expand-lg sticky-top site-nav">
     <div class="container">
-      <a class="navbar-brand fw-semibold" href="{{.Home}}">Proks</a>
+      <a class="navbar-brand wordmark wordmark-sm" href="{{.Home}}"><span class="wordmark-accent">PRO</span>KS<span class="wordmark-go">.go</span></a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
               aria-controls="mainNav" aria-expanded="false" aria-label="{{t "nav.menu"}}">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="mainNav">
-        <ul class="navbar-nav ms-auto">
+        <ul class="navbar-nav ms-auto mono-caps">
           <li class="nav-item"><a class="nav-link" href="{{.Home}}#about">{{t "nav.about"}}</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{.Home}}#features">{{t "nav.features"}}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{.Home}}#modules">{{t "nav.modules"}}</a></li>
           <li class="nav-item"><a class="nav-link" href="{{.Home}}#architecture">{{t "nav.architecture"}}</a></li>
           <li class="nav-item">
             <a class="nav-link{{if eq .Active "docs"}} active{{end}}" href="{{.Home}}docs/"
@@ -51,21 +43,9 @@
             <a class="nav-link{{if eq .Active "bench"}} active{{end}}" href="{{.Home}}bench/"
                {{- if eq .Active "bench"}} aria-current="page"{{end}}>{{t "nav.bench"}}</a>
           </li>
-          <li class="nav-item"><a class="nav-link" href="https://github.com/Sysoev973/Proks">GitHub</a></li>
-          <li class="nav-item dropdown">
-            <button class="btn btn-link nav-link dropdown-toggle" id="themeMenu" type="button"
-                    data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{t "theme.label"}}">
-              <span class="theme-icon" aria-hidden="true">◐</span><span class="d-lg-none ms-2">{{t "theme.short"}}</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeMenu">
-              <li><button class="dropdown-item" type="button" data-theme-value="light" aria-pressed="false">{{t "theme.light"}}</button></li>
-              <li><button class="dropdown-item" type="button" data-theme-value="dark" aria-pressed="false">{{t "theme.dark"}}</button></li>
-              <li><button class="dropdown-item" type="button" data-theme-value="auto" aria-pressed="false">{{t "theme.auto"}}</button></li>
-            </ul>
-          </li>
           {{- range .Langs}}{{if not .Current}}
           <li class="nav-item">
-            <a class="nav-link" href="{{.URL}}" hreflang="{{.Code}}" lang="{{.Code}}" title="{{.Name}}"
+            <a class="nav-link nav-lang" href="{{.URL}}" hreflang="{{.Code}}" lang="{{.Code}}" title="{{.Name}}"
                aria-label="{{t "lang.switch"}}: {{.Name}}">{{.Short}}</a>
           </li>
           {{- end}}{{end}}
@@ -76,20 +56,43 @@
 
   {{template "content" .}}
 
-  <footer class="py-4 bg-dark text-white-50 site-footer">
-    <div class="container d-flex flex-column flex-sm-row justify-content-between gap-2">
-      <span>Proks</span>
-      <span>
-        <a class="link-light" href="https://github.com/Sysoev973/Proks">{{t "footer.proks"}}</a>
-        ·
-        <a class="link-light" href="https://github.com/Sysoev973/Proks_site">{{t "footer.site"}}</a>
-      </span>
+  <footer class="site-footer pt-5 pb-4">
+    <div class="container">
+      <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+        <div class="col">
+          <div class="wordmark wordmark-sm mb-2"><span class="wordmark-accent">PRO</span>KS<span class="wordmark-go">.go</span></div>
+          <p class="small text-body-secondary mb-0">{{t "footer.about"}}</p>
+        </div>
+        <div class="col">
+          <h2 class="footer-h">{{t "footer.sections_h"}}</h2>
+          <ul class="list-unstyled small mb-0">
+            <li><a href="{{.Home}}docs/">{{t "nav.docs"}}</a></li>
+            <li><a href="{{.Home}}changelog/">{{t "nav.changelog"}}</a></li>
+            <li><a href="{{.Home}}bench/">{{t "nav.bench"}}</a></li>
+            <li><a href="{{.Home}}#architecture">{{t "nav.architecture"}}</a></li>
+          </ul>
+        </div>
+        <div class="col">
+          <h2 class="footer-h">{{t "footer.code_h"}}</h2>
+          <ul class="list-unstyled small mb-0">
+            <li><a href="https://github.com/{{.Site.Repo}}">{{t "footer.proks"}}</a></li>
+            <li><a href="https://github.com/{{.Site.Repo}}/releases">{{t "footer.releases"}}</a></li>
+            <li><a href="https://github.com/Sysoev973/Proks_site">{{t "footer.site"}}</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer-line mono-caps mb-0">
+        © {{.Site.Year}} PROKS ///
+        {{t "footer.built"}}
+        {{- if .Site.SHA}} <a href="{{.Site.CommitURL}}">Proks@{{.Site.ShortSHA}}</a>{{else}} Proks{{end}}
+      </p>
     </div>
   </footer>
 
+  <a class="to-top" href="#top" aria-label="{{t "totop"}}" title="{{t "totop"}}">↑</a>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-  <script src="{{.Base}}static/js/theme.js"></script>
 </body>
 </html>
 {{end}}

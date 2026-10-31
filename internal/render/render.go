@@ -21,10 +21,12 @@ type Page struct {
 	Lang Lang
 	// Langs — эта же страница на всех языках, для переключателя.
 	Langs []Alternate
+	// Site — общие для всех страниц сведения: звёзды, коммит Proks, год.
+	Site  Site
 	Title string
 	// Active — раздел для подсветки в меню: "home", "docs", "changelog" или "bench".
 	Active string
-	// Data — данные конкретной страницы: DocsData, ChangelogData, BenchData или nil.
+	// Data — данные конкретной страницы: HomeData, DocsData, ChangelogData или BenchData.
 	Data any
 }
 

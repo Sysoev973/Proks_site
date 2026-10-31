@@ -23,6 +23,7 @@ func testLangs(t *testing.T) (ru, en Lang, all []Lang) {
 func testPage(l Lang, all []Lang, path, active string, data any) Page {
 	return Page{
 		Base: "/Proks_site/", Home: "/Proks_site/" + l.Prefix, Lang: l, Langs: Alternates("/Proks_site/", path, all, l),
+		Site:  Site{Repo: "Sysoev973/Proks", Stars: 42, SHA: "0123456789abcdef", CommitURL: "https://x/c", Year: 2026},
 		Title: "Proks", Active: active, Data: data,
 	}
 }
@@ -32,7 +33,15 @@ func TestRenderIndexUsesBase(t *testing.T) {
 	ru, _, all := testLangs(t)
 	// Шаблоны тоже на два уровня выше.
 	r := New("../../templates")
-	if err := r.Render(&buf, "index.html", testPage(ru, all, "", "home", nil)); err != nil {
+	home := HomeData{
+		GoVersion: "1.25",
+		Modules: []Module{
+			{Name: "cache", Badge: "CORE", Tags: []string{"tinylfu"}, Tests: 3, URL: "https://x/cache"},
+			{Name: "events", Badge: "NEW", Tests: 4, URL: "https://x/events"},
+		},
+		Chips: []Chip{{Label: "chip.cache", URL: "/Proks_site/docs/#политика-кэширования"}},
+	}
+	if err := r.Render(&buf, "index.html", testPage(ru, all, "", "home", home)); err != nil {
 		t.Fatal(err)
 	}
 	html := buf.String()
@@ -42,19 +51,32 @@ func TestRenderIndexUsesBase(t *testing.T) {
 		`href="/Proks_site/static/css/site.css"`,
 		`href="/Proks_site/#about"`,
 		`Что такое Proks`,
-		// Переключатель темы: скрипт от базового пути и все три варианта.
-		`src="/Proks_site/static/js/theme.js"`,
-		`data-theme-value="light"`,
-		`data-theme-value="dark"`,
-		`data-theme-value="auto"`,
-		// Язык и переключатель на английскую версию той же страницы.
-		`<html lang="ru">`,
+		// Оформление: только тёмная тема, логотип, звёзды, статистика, чипы, карточки, футер.
+		`<html lang="ru" data-bs-theme="dark">`,
+		`<span class="wordmark-accent">PRO</span>KS<span class="wordmark-go">.go</span>`,
+		`>42 ★</a>`,
+		`МОДУЛИ <b>2</b>`,
+		`GO <b>1.25</b>`,
+		`>Кэш</a>`,
+		`<h3 class="module-name">cache</h3>`,
+		`class="badge module-badge module-badge-new">NEW</span>`,
+		`#tinylfu`,
+		`ТЕСТЫ 3`,
+		`Хранилище с допуском TinyLFU`, // описание модуля из словаря по ключу mod.cache
+		`Proks@0123456</a>`,
+		`href="#top"`,
+		// Переключатель на английскую версию той же страницы.
 		`<link rel="alternate" hreflang="en" href="/Proks_site/en/">`,
 		`href="/Proks_site/en/" hreflang="en" lang="en"`,
 	} {
 		if !strings.Contains(html, want) {
 			t.Errorf("в странице нет %q", want)
 		}
+	}
+
+	// Переключателя темы больше нет: сайт только тёмный.
+	if strings.Contains(html, "theme.js") || strings.Contains(html, "data-theme-value") {
+		t.Error("остался переключатель темы")
 	}
 
 	// Ссылки от корня домена на GitHub Pages ведут мимо подпапки сайта.
@@ -110,7 +132,7 @@ func TestRenderEnglish(t *testing.T) {
 	}
 	html := buf.String()
 	for _, want := range []string{
-		`<html lang="en">`,
+		`<html lang="en" data-bs-theme="dark">`,
 		`href="/Proks_site/static/css/site.css"`, // статика общая, не из /en/
 		`class="nav-link active" href="/Proks_site/en/docs/"`,
 		`href="/Proks_site/docs/" hreflang="ru" lang="ru"`,
