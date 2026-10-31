@@ -11,7 +11,7 @@
   <link href="{{.Base}}static/css/site.css" rel="stylesheet">
 </head>
 <body>
-  <nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <div class="container">
       <a class="navbar-brand fw-semibold" href="{{.Base}}">Proks</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
@@ -23,6 +23,14 @@
           <li class="nav-item"><a class="nav-link" href="{{.Base}}#about">О проекте</a></li>
           <li class="nav-item"><a class="nav-link" href="{{.Base}}#features">Возможности</a></li>
           <li class="nav-item"><a class="nav-link" href="{{.Base}}#architecture">Архитектура</a></li>
+          <li class="nav-item">
+            <a class="nav-link{{if eq .Active "docs"}} active{{end}}" href="{{.Base}}docs/"
+               {{- if eq .Active "docs"}} aria-current="page"{{end}}>Документация</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link{{if eq .Active "changelog"}} active{{end}}" href="{{.Base}}changelog/"
+               {{- if eq .Active "changelog"}} aria-current="page"{{end}}>Изменения</a>
+          </li>
           <li class="nav-item"><a class="nav-link" href="https://github.com/Sysoev973/Proks">GitHub</a></li>
         </ul>
       </div>
