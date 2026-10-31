@@ -30,6 +30,6 @@ go test ./...
 Сайт публикует workflow `.github/workflows/deploy.yml`: клонирует Proks, собирает `dist/` и выкладывает его на GitHub Pages. Он запускается:
 
 - при push в `main` — после мерджа PR;
-- по событию `repository_dispatch` с типом `proks-updated` — его присылает Proks, когда меняются `README.md`, `docs/` или выходит релиз;
+- по событию `repository_dispatch` с типом `proks-updated` — его присылает Proks при каждом push в `main`, публикации релиза или по кнопке Run workflow в его workflow Notify site;
 - кнопкой Run workflow во вкладке Actions;
 - раз в сутки по расписанию как страховка. GitHub отключает расписание, если в репозитории 60 дней не было активности: тогда workflow нужно включить заново во вкладке Actions.

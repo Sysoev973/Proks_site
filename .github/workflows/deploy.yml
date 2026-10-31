@@ -14,10 +14,10 @@ on:
   schedule:
     - cron: "17 3 * * *"
 
+# По умолчанию только чтение. Права на публикацию получает одна джоба deploy:
+# build запускает чужой код (goldmark и другие модули), ему они не нужны.
 permissions:
   contents: read
-  pages: write    # публикация на Pages
-  id-token: write # deploy-pages подтверждает, что запуск идёт из этого репозитория
 
 # Push и dispatch не публикуют одновременно: второй запуск ждёт первый.
 # Начатую публикацию не прерываем, чтобы сайт не остался наполовину обновлённым.
@@ -52,6 +52,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write    # публикация на Pages
+      id-token: write # deploy-pages подтверждает, что запуск идёт из этого репозитория
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
