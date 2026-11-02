@@ -107,6 +107,7 @@
   "bench.row_upstream": "Upstream requests",
   "bench.row_useless": "Useless prefetches",
   "bench.row_failed": "Errors",
+  "bench.row_requests": "Total requests",
   "bench.empty": "No runs yet: the workflow has never been run.",
   "bench.workflow": "bench.yml workflow",
   "bench.data": "raw data (history.json)"

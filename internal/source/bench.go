@@ -35,6 +35,7 @@ type BenchResult struct {
 		UselessPrefetch *float64 `json:"useless_prefetch_share"`
 	} `json:"server"`
 	FailedRate *float64 `json:"failed_rate"`
+	Requests   *float64 `json:"requests"` // запросов k6 в фазе measure
 }
 
 // Percentiles — задержка в миллисекундах.

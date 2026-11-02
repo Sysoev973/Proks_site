@@ -107,6 +107,7 @@
   "bench.row_upstream": "Запросы к upstream",
   "bench.row_useless": "Бесполезные предзагрузки",
   "bench.row_failed": "Ошибки",
+  "bench.row_requests": "Всего запросов",
   "bench.empty": "Замеров пока нет: workflow ещё ни разу не запускался.",
   "bench.workflow": "Workflow bench.yml",
   "bench.data": "сырые данные (history.json)"
