@@ -18,6 +18,7 @@ func benchRun(day int, hitOff, hitOn, p95Off, p95On *float64) source.BenchRun {
 	r.RunURL = "https://github.com/o/r/actions/runs/1"
 	r.Off.Server.HitRatio, r.On.Server.HitRatio = hitOff, hitOn
 	r.Off.Latency.Authors.P95, r.On.Latency.Authors.P95 = p95Off, p95On
+	r.Off.Requests, r.On.Requests = f(9600), f(9600)
 	return r
 }
 
@@ -91,6 +92,9 @@ func TestNewBenchData(t *testing.T) {
 	}
 	if r := rows["Бесполезные предзагрузки"]; r.Off != "—" {
 		t.Errorf("пустое значение = %q, want прочерк", r.Off)
+	}
+	if r := rows["Всего запросов"]; r.Off != "9600" || r.On != "9600" {
+		t.Errorf("Всего запросов = %+v", r)
 	}
 	if !strings.Contains(string(d.HitChart), "59.30%") {
 		t.Error("hit ratio на графике должен быть в процентах")

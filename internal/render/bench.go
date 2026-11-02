@@ -58,6 +58,7 @@ func NewBenchData(runs []source.BenchRun, repo, branch string, l Lang) BenchData
 		{l.Text("bench.row_upstream"), rps(off.Server.UpstreamRPS), rps(on.Server.UpstreamRPS)},
 		{l.Text("bench.row_useless"), pct(off.Server.UselessPrefetch), pct(on.Server.UselessPrefetch)},
 		{l.Text("bench.row_failed"), pct(off.FailedRate), pct(on.FailedRate)},
+		{l.Text("bench.row_requests"), count(off.Requests), count(on.Requests)},
 	}
 
 	labels := make([]string, len(runs))
@@ -89,6 +90,9 @@ func percent(v *float64) *float64 {
 
 func pct(v *float64) string { return format(v, 100, "%.1f%%") }
 func rps(v *float64) string { return format(v, 1, "%.1f rps") }
+
+// count печатает целое число запросов.
+func count(v *float64) string { return format(v, 1, "%.0f") }
 
 // format печатает v*scale по шаблону, а отсутствующее значение — прочерком.
 func format(v *float64, scale float64, layout string) string {
