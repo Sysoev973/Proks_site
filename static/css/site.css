@@ -130,6 +130,16 @@ h2 {
   position: relative;
 }
 
+.hero-meme {
+  position: absolute;
+  top: 0;
+  right: var(--bs-gutter-x, 0.75rem);
+  width: clamp(220px, 24vw, 340px);
+  height: auto;
+  border: 1px solid var(--px-border);
+  border-radius: 0.5rem;
+}
+
 .stars-pill {
   position: absolute;
   top: -2.5rem;
