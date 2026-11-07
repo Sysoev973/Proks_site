@@ -19,6 +19,9 @@
   "stars.label": "stars on GitHub",
   "totop": "Back to top",
 
+  "code.copy": "Copy",
+  "code.copied": "Copied",
+
   "footer.about_h": "About",
   "footer.about": "A caching HTTP proxy in Go. This site builds itself from the Proks README, docs/ and releases.",
   "footer.sections_h": "Sections",

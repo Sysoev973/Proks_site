@@ -431,6 +431,39 @@ h2 {
   background-color: var(--bs-tertiary-bg);
 }
 
+/* Фон блока кода — наш, а не из темы Chroma (highlight.css). */
+.doc-content pre.chroma {
+  background-color: var(--bs-tertiary-bg);
+}
+
+/* Обёртка блока кода с кнопкой «копировать» (site.js). */
+.code-block {
+  position: relative;
+}
+
+.code-copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--px-border);
+  border-radius: var(--bs-border-radius);
+  background-color: var(--px-surface);
+  color: var(--bs-secondary-color);
+  cursor: pointer;
+}
+
+.code-copy:hover,
+.code-copy:focus-visible {
+  border-color: var(--px-accent);
+  color: var(--px-accent);
+}
+
+.code-copy.copied {
+  border-color: var(--px-accent);
+  color: var(--px-accent);
+}
+
 .doc-content blockquote {
   padding-left: 1rem;
   border-left: 0.25rem solid var(--bs-border-color);
