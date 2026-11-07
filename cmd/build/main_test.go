@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"os"
 	"path/filepath"
@@ -56,6 +57,27 @@ func TestWriteSitemap(t *testing.T) {
 	en := locs["https://sysoev973.github.io/Proks_site/en/docs/"]
 	if len(en) != 2 || !strings.Contains(en[0]+en[1], "ru=https://sysoev973.github.io/Proks_site/docs/") {
 		t.Errorf("у en-страницы docs/ нет альтернативы на ru: %v", en)
+	}
+}
+
+func TestWriteSearchIndex(t *testing.T) {
+	out := t.TempDir()
+	entries := []render.SearchEntry{
+		{Title: "Proks", URL: "/Proks_site/docs/#запуск", Section: "Запуск", Text: "текст"},
+	}
+	if err := writeSearchIndex(out, "en/", entries); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(out, "en", "search-index.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []render.SearchEntry
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("невалидный JSON: %v", err)
+	}
+	if len(got) != 1 || got[0].URL != "/Proks_site/docs/#запуск" {
+		t.Errorf("записи: %+v", got)
 	}
 }
 

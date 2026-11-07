@@ -22,6 +22,9 @@
   "code.copy": "Copy",
   "code.copied": "Copied",
 
+  "search.placeholder": "Search docs",
+  "search.no_results": "No results",
+
   "footer.about_h": "About",
   "footer.about": "A caching HTTP proxy in Go. This site builds itself from the Proks README, docs/ and releases.",
   "footer.sections_h": "Sections",

@@ -464,6 +464,86 @@ h2 {
   color: var(--px-accent);
 }
 
+/* Поиск по документации в шапке (search.js) */
+.search-box {
+  position: relative;
+}
+
+.search-box .form-control {
+  min-width: 13rem;
+  border-color: var(--px-border);
+  background-color: var(--px-surface);
+  color: var(--px-fg);
+}
+
+.search-box .form-control:focus {
+  border-color: var(--px-accent);
+  background-color: var(--px-surface);
+  color: var(--px-fg);
+  box-shadow: none;
+}
+
+.search-box .form-control::placeholder {
+  color: var(--bs-secondary-color);
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  z-index: 1040;
+  max-height: 70vh;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--px-border);
+  border-radius: var(--bs-border-radius);
+  background-color: var(--px-surface);
+}
+
+.search-results a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  text-decoration: none;
+}
+
+.search-results a:hover,
+.search-results a.active {
+  background-color: var(--px-surface-2);
+}
+
+.search-title {
+  display: block;
+  color: var(--px-fg);
+  font-weight: 600;
+}
+
+.search-section {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--px-go);
+}
+
+.search-text {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color);
+}
+
+.search-results mark {
+  padding: 0;
+  background: none;
+  color: var(--px-accent);
+  font-weight: 700;
+}
+
+.search-empty {
+  padding: 0.5rem 0.75rem;
+  color: var(--bs-secondary-color);
+}
+
 .doc-content blockquote {
   padding-left: 1rem;
   border-left: 0.25rem solid var(--bs-border-color);

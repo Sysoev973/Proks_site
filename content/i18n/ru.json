@@ -22,6 +22,9 @@
   "code.copy": "Скопировать",
   "code.copied": "Скопировано",
 
+  "search.placeholder": "Поиск по документации",
+  "search.no_results": "Ничего не найдено",
+
   "footer.about_h": "О проекте",
   "footer.about": "Кэширующий HTTP-прокси на Go. Сайт собирается сам из README, docs/ и релизов Proks.",
   "footer.sections_h": "Разделы",

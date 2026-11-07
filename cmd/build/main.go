@@ -10,6 +10,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"flag"
 	"fmt"
@@ -178,8 +179,10 @@ func buildLang(r *render.Renderer, c config, l render.Lang, langs []render.Lang,
 	}
 
 	// Документы рендерим заранее: по README проверяем якоря чипов на главной.
+	// Параллельно собираем поисковый индекс — его пишем в конце в search-index.json.
 	contents := make([]template.HTML, len(d.docs))
 	var readme string
+	var searchEntries []render.SearchEntry
 	for i, doc := range d.docs {
 		content, err := render.Markdown(doc.Markdown, doc.Path, links)
 		if err != nil {
@@ -189,6 +192,11 @@ func buildLang(r *render.Renderer, c config, l render.Lang, langs []render.Lang,
 		if doc.Path == "README.md" {
 			readme = string(content)
 		}
+		entries, err := render.SearchIndex(doc.Markdown, doc.Title, home+docPage(doc.Path))
+		if err != nil {
+			return fmt.Errorf("индекс %s: %w", doc.Path, err)
+		}
+		searchEntries = append(searchEntries, entries...)
 	}
 
 	homeData := render.HomeData{GoVersion: d.project.GoVersion}
@@ -244,7 +252,25 @@ func buildLang(r *render.Renderer, c config, l render.Lang, langs []render.Lang,
 	}
 
 	benchData := render.NewBenchData(d.bench, c.repo, c.benchBranch, l)
-	return write("bench/", "bench.html", page("bench/", l.Text("title.bench"), "bench", benchData))
+	if err := write("bench/", "bench.html", page("bench/", l.Text("title.bench"), "bench", benchData)); err != nil {
+		return err
+	}
+
+	return writeSearchIndex(c.out, l.Prefix, searchEntries)
+}
+
+// writeSearchIndex пишет поисковый индекс по документации в <out>/<prefix>search-index.json.
+// Индекс на язык свой: URL страниц содержат языковой префикс.
+func writeSearchIndex(out, prefix string, entries []render.SearchEntry) error {
+	data, err := json.Marshal(entries)
+	if err != nil {
+		return err
+	}
+	dir := filepath.Join(out, filepath.FromSlash(prefix))
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(dir, "search-index.json"), data, 0o644)
 }
 
 // docPage — путь страницы документа от base: README.md → "docs/", docs/a.md → "docs/a/".
