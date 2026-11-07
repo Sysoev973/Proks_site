@@ -102,7 +102,7 @@ func TestRenderDocsAndChangelog(t *testing.T) {
 		}),
 	}
 	wants := map[string][]string{
-		"docs.html":      {`<p>текст документа</p>`, `aria-current="page">Обзор</a>`, `class="nav-link active" href="/Proks_site/docs/"`},
+		"docs.html":      {`<p>текст документа</p>`, `aria-current="page">Обзор</a>`, `href="/Proks_site/docs/">Документация</a>`},
 		"changelog.html": {`v1.0.0`, `01.10.2026`, `>0123456<`, `feat: x`, `class="nav-link active" href="/Proks_site/changelog/"`},
 	}
 	for name, p := range pages {
@@ -134,7 +134,7 @@ func TestRenderEnglish(t *testing.T) {
 	for _, want := range []string{
 		`<html lang="en" data-bs-theme="dark">`,
 		`href="/Proks_site/static/css/site.css"`, // статика общая, не из /en/
-		`class="nav-link active" href="/Proks_site/en/docs/"`,
+		`href="/Proks_site/en/docs/">Docs</a>`, // ссылка на документацию осталась в футере
 		`href="/Proks_site/docs/" hreflang="ru" lang="ru"`,
 		`>Changelog</a>`,
 		`written in Russian`, // предупреждение, что документация не переведена
