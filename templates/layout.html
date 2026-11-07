@@ -29,7 +29,10 @@
       <div class="collapse navbar-collapse" id="mainNav">
         <ul class="navbar-nav ms-auto mono-caps">
           <li class="nav-item"><a class="nav-link" href="{{.Home}}#about">{{t "nav.about"}}</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{.Home}}#architecture">{{t "nav.architecture"}}</a></li>
+          <li class="nav-item">
+            <a class="nav-link{{if eq .Active "docs"}} active{{end}}" href="{{.Home}}docs/"
+               {{- if eq .Active "docs"}} aria-current="page"{{end}}>{{t "nav.docs"}}</a>
+          </li>
           <li class="nav-item">
             <a class="nav-link{{if eq .Active "changelog"}} active{{end}}" href="{{.Home}}changelog/"
                {{- if eq .Active "changelog"}} aria-current="page"{{end}}>{{t "nav.changelog"}}</a>
