@@ -10,6 +10,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/xml"
 	"flag"
 	"fmt"
 	"html/template"
@@ -18,6 +19,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -31,7 +33,7 @@ var siteLangs = []string{"ru", "en"}
 type config struct {
 	base, out, templates, static string
 	proks, repo, branch          string
-	benchBranch, i18n            string
+	benchBranch, i18n, origin    string
 }
 
 func main() {
@@ -45,6 +47,7 @@ func main() {
 	flag.StringVar(&c.branch, "branch", "main", "ветка Proks, на файлы которой ведут ссылки")
 	flag.StringVar(&c.benchBranch, "bench-branch", "bench-data", "ветка Proks с history.json от bench.yml")
 	flag.StringVar(&c.i18n, "i18n", "content/i18n", "каталог со словарями <язык>.json")
+	flag.StringVar(&c.origin, "origin", "https://sysoev973.github.io", "схема и хост опубликованного сайта (canonical, og:url, sitemap)")
 	serve := flag.String("serve", "", "после сборки раздавать сайт по этому адресу, например :8080")
 	flag.Parse()
 
@@ -118,7 +121,7 @@ func build(ctx context.Context, c config, gh *source.GitHub) error {
 	if err != nil {
 		return err
 	}
-	d.site = render.Site{Repo: c.repo, Stars: repo.Stars, Year: time.Now().Year()}
+	d.site = render.Site{Repo: c.repo, Stars: repo.Stars, Year: time.Now().Year(), Origin: c.origin}
 	if len(d.commits) > 0 {
 		d.site.SHA = d.commits[0].SHA
 		d.site.CommitURL = d.commits[0].URL
@@ -137,26 +140,34 @@ func build(ctx context.Context, c config, gh *source.GitHub) error {
 	}
 
 	r := render.New(c.templates)
+	var pages []string
 	for _, l := range langs {
-		if err := buildLang(r, c, l, langs, d); err != nil {
+		if err := buildLang(r, c, l, langs, d, &pages); err != nil {
 			return fmt.Errorf("%s: %w", l.Code, err)
 		}
+	}
+	if err := writeSitemap(c.out, c.origin, c.base, pages, langs); err != nil {
+		return err
+	}
+	if err := writeRobots(c.out, c.origin, c.base); err != nil {
+		return err
 	}
 
 	return os.CopyFS(filepath.Join(c.out, "static"), os.DirFS(c.static))
 }
 
-// buildLang пишет все страницы сайта на языке l в <out>/<l.Prefix>.
+// buildLang пишет все страницы сайта на языке l в <out>/<l.Prefix> и добавляет их пути в pages для sitemap.
 // Тексты из Proks (документация, релизы, коммиты) не переводятся, меняется только интерфейс вокруг них.
-func buildLang(r *render.Renderer, c config, l render.Lang, langs []render.Lang, d siteData) error {
+func buildLang(r *render.Renderer, c config, l render.Lang, langs []render.Lang, d siteData, pages *[]string) error {
 	home := c.base + l.Prefix
 	page := func(path, title, active string, data any) render.Page {
 		return render.Page{
-			Base: c.base, Home: home, Lang: l, Langs: render.Alternates(c.base, path, langs, l),
+			Base: c.base, Home: home, Path: l.Prefix + path, Lang: l, Langs: render.Alternates(c.base, path, langs, l),
 			Site: d.site, Title: title, Active: active, Data: data,
 		}
 	}
 	write := func(path, name string, p render.Page) error {
+		*pages = append(*pages, l.Prefix+path)
 		return writePage(r, c.out, l.Prefix+path, name, p)
 	}
 
@@ -255,6 +266,44 @@ func writePage(r *render.Renderer, out, dir, name string, p render.Page) error {
 		return err
 	}
 	return os.WriteFile(filepath.Join(full, "index.html"), buf.Bytes(), 0o644)
+}
+
+// writeSitemap пишет <out>/sitemap.xml со всеми страницами pages (пути от base, с языковым префиксом).
+// Каждая страница получает xhtml:link rel="alternate" на языковые версии, если её путь начинается
+// с префикса одного из языков.
+func writeSitemap(out, origin, base string, pages []string, langs []render.Lang) error {
+	slices.Sort(pages)
+	var b strings.Builder
+	b.WriteString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+	b.WriteString("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n")
+	var esc bytes.Buffer
+	for _, p := range pages {
+		b.WriteString("  <url>\n    <loc>")
+		esc.Reset()
+		_ = xml.EscapeText(&esc, []byte(origin+base+p))
+		b.Write(esc.Bytes())
+		b.WriteString("</loc>\n")
+		// Снимаем языковой префикс: сначала непустые ("" языка по умолчанию подходит подо всё).
+		unprefixed := p
+		for _, l := range langs {
+			if u, ok := strings.CutPrefix(p, l.Prefix); ok && l.Prefix != "" {
+				unprefixed = u
+				break
+			}
+		}
+		for _, alt := range langs {
+			b.WriteString("    <xhtml:link rel=\"alternate\" hreflang=\"" + alt.Code + "\" href=\"" + origin + base + alt.Prefix + unprefixed + "\"/>\n")
+		}
+		b.WriteString("  </url>\n")
+	}
+	b.WriteString("</urlset>\n")
+	return os.WriteFile(filepath.Join(out, "sitemap.xml"), []byte(b.String()), 0o644)
+}
+
+// writeRobots пишет <out>/robots.txt: всё можно индексировать, адрес sitemap прилагается.
+func writeRobots(out, origin, base string) error {
+	content := "User-agent: *\nAllow: /\n\nSitemap: " + origin + base + "sitemap.xml\n"
+	return os.WriteFile(filepath.Join(out, "robots.txt"), []byte(content), 0o644)
 }
 
 // listen раздаёт out по пути base, как это сделает GitHub Pages.

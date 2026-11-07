@@ -22,8 +22,9 @@ func testLangs(t *testing.T) (ru, en Lang, all []Lang) {
 // testPage — страница на языке l по пути path, как её собирает cmd/build.
 func testPage(l Lang, all []Lang, path, active string, data any) Page {
 	return Page{
-		Base: "/Proks_site/", Home: "/Proks_site/" + l.Prefix, Lang: l, Langs: Alternates("/Proks_site/", path, all, l),
-		Site:  Site{Repo: "Sysoev973/Proks", Stars: 42, SHA: "0123456789abcdef", CommitURL: "https://x/c", Year: 2026},
+		Base: "/Proks_site/", Home: "/Proks_site/" + l.Prefix, Path: l.Prefix + path,
+		Lang: l, Langs: Alternates("/Proks_site/", path, all, l),
+		Site:  Site{Repo: "Sysoev973/Proks", Stars: 42, SHA: "0123456789abcdef", CommitURL: "https://x/c", Year: 2026, Origin: "https://sysoev973.github.io"},
 		Title: "Proks", Active: active, Data: data,
 	}
 }
@@ -68,6 +69,12 @@ func TestRenderIndexUsesBase(t *testing.T) {
 		// Переключатель на английскую версию той же страницы.
 		`<link rel="alternate" hreflang="en" href="/Proks_site/en/">`,
 		`href="/Proks_site/en/" hreflang="en" lang="en"`,
+		// SEO: canonical и Open Graph собираются из Origin + Base + Path.
+		`<link rel="canonical" href="https://sysoev973.github.io/Proks_site/">`,
+		`<meta property="og:title" content="Proks">`,
+		`<meta property="og:url" content="https://sysoev973.github.io/Proks_site/">`,
+		`<meta property="og:image" content="https://sysoev973.github.io/Proks_site/static/og.png">`,
+		`<meta name="twitter:card" content="summary_large_image">`,
 	} {
 		if !strings.Contains(html, want) {
 			t.Errorf("в странице нет %q", want)
@@ -136,6 +143,7 @@ func TestRenderEnglish(t *testing.T) {
 		`href="/Proks_site/static/css/site.css"`, // статика общая, не из /en/
 		`href="/Proks_site/en/docs/">Docs</a>`,   // ссылка на документацию осталась в футере
 		`href="/Proks_site/docs/" hreflang="ru" lang="ru"`,
+		`<link rel="canonical" href="https://sysoev973.github.io/Proks_site/en/docs/">`,
 		`>Changelog</a>`,
 		`written in Russian`, // предупреждение, что документация не переведена
 	} {

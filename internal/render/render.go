@@ -15,6 +15,9 @@ import (
 type Page struct {
 	// Base — корень сайта, "/Proks_site/": от него ссылки на static/.
 	Base string
+	// Path — путь этой страницы от Base с языковым префиксом: "", "docs/", "en/docs/".
+	// Нужен для canonical и og:url.
+	Path string
 	// Home — корень версии сайта на языке Lang: "/Proks_site/" или "/Proks_site/en/". От него ссылки между страницами.
 	Home string
 	// Lang — язык страницы; его словарь доступен в шаблонах как {{t "ключ"}}.

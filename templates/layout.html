@@ -8,6 +8,13 @@
   <title>{{.Title}}</title>
   <meta name="description" content="{{t "meta.description"}}">
   <meta name="theme-color" content="#080808">
+  <link rel="canonical" href="{{.Site.Origin}}{{.Base}}{{.Path}}">
+  <meta property="og:title" content="{{.Title}}">
+  <meta property="og:description" content="{{t "meta.description"}}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{.Site.Origin}}{{.Base}}{{.Path}}">
+  <meta property="og:image" content="{{.Site.Origin}}{{.Base}}static/og.png">
+  <meta name="twitter:card" content="summary_large_image">
   {{- range .Langs}}
   <link rel="alternate" hreflang="{{.Code}}" href="{{.URL}}">
   {{- end}}
