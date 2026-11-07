@@ -35,13 +35,15 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="mainNav">
+        {{- if eq .Active "docs"}}
         <div class="search-box ms-lg-auto me-lg-3 my-2 my-lg-0">
           <input id="site-search" class="form-control form-control-sm" type="search" autocomplete="off"
                  placeholder="{{t "search.placeholder"}}" aria-label="{{t "search.placeholder"}}"
                  data-index="{{.Home}}search-index.json" data-no-results="{{t "search.no_results"}}">
           <ul id="search-results" class="search-results" hidden></ul>
         </div>
-        <ul class="navbar-nav mono-caps">
+        {{- end}}
+        <ul class="navbar-nav{{if ne .Active "docs"}} ms-auto{{end}} mono-caps">
           <li class="nav-item"><a class="nav-link" href="{{.Home}}#about">{{t "nav.about"}}</a></li>
           <li class="nav-item">
             <a class="nav-link{{if eq .Active "docs"}} active{{end}}" href="{{.Home}}docs/"

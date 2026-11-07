@@ -86,6 +86,11 @@ func TestRenderIndexUsesBase(t *testing.T) {
 		t.Error("остался переключатель темы")
 	}
 
+	// Поиск по документации есть только на страницах документации.
+	if strings.Contains(html, `id="site-search"`) {
+		t.Error("поле поиска на главной странице")
+	}
+
 	// Ссылки от корня домена на GitHub Pages ведут мимо подпапки сайта.
 	for _, bad := range []string{`href="/static/`, `src="/static/`} {
 		if strings.Contains(html, bad) {
@@ -109,7 +114,7 @@ func TestRenderDocsAndChangelog(t *testing.T) {
 		}),
 	}
 	wants := map[string][]string{
-		"docs.html":      {`<p>текст документа</p>`, `aria-current="page">Обзор</a>`, `href="/Proks_site/docs/">Документация</a>`},
+		"docs.html":      {`<p>текст документа</p>`, `aria-current="page">Обзор</a>`, `href="/Proks_site/docs/">Документация</a>`, `id="site-search"`},
 		"changelog.html": {`v1.0.0`, `01.10.2026`, `>0123456<`, `feat: x`, `class="nav-link active" href="/Proks_site/changelog/"`},
 	}
 	for name, p := range pages {
@@ -125,6 +130,9 @@ func TestRenderDocsAndChangelog(t *testing.T) {
 		}
 		if strings.Contains(html, `href="/static/`) || strings.Contains(html, `href="/docs/`) {
 			t.Errorf("%s: есть ссылка от корня домена", name)
+		}
+		if name != "docs.html" && strings.Contains(html, `id="site-search"`) {
+			t.Errorf("%s: поле поиска вне документации", name)
 		}
 	}
 }
