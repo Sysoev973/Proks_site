@@ -77,39 +77,77 @@
         <h2 class="section-h mb-4">{{t "home.arch_h"}}</h2>
 
         <h3 class="mono-caps flow-h">{{t "home.arch_read"}}</h3>
-        <div class="flow mb-5">
-          <div class="flow-node">{{t "home.arch_client"}}</div>
-          <div class="flow-arrow" aria-hidden="true"></div>
-          <div class="flow-node flow-node-accent">
-            Proks
-            <span class="flow-note">{{t "home.arch_proks_note"}}</span>
-          </div>
-          <div class="flow-arrow" aria-hidden="true"></div>
-          <div class="flow-node">
-            Upstream API
-            <span class="flow-note">{{t "home.arch_upstream_note"}}</span>
-          </div>
-          <div class="flow-arrow" aria-hidden="true"></div>
-          <div class="flow-node">PostgreSQL</div>
+        <div class="arch-scroll mb-5">
+          <svg class="arch-svg" viewBox="0 0 960 150" role="img" aria-label="{{t "home.arch_read"}}">
+            <defs>
+              <marker id="arch-arrow-read" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0L10 5L0 10z" class="arch-marker-read"/>
+              </marker>
+            </defs>
+            <g class="arch-node">
+              <rect x="20" y="45" width="150" height="60" rx="6"/>
+              <text class="arch-label" x="95" y="81">{{t "home.arch_client"}}</text>
+            </g>
+            <path class="arch-edge" d="M172 75H296" marker-end="url(#arch-arrow-read)"/>
+            <g class="arch-node arch-node-accent">
+              <rect x="300" y="45" width="160" height="60" rx="6"/>
+              <text class="arch-label" x="380" y="70">Proks</text>
+              <text class="arch-note" x="380" y="90">{{t "home.arch_proks_note"}}</text>
+            </g>
+            <path class="arch-edge" d="M462 75H576" marker-end="url(#arch-arrow-read)"/>
+            <g class="arch-node">
+              <rect x="580" y="45" width="170" height="60" rx="6"/>
+              <text class="arch-label" x="665" y="70">Upstream API</text>
+              <text class="arch-note" x="665" y="90">{{t "home.arch_upstream_note"}}</text>
+            </g>
+            <path class="arch-edge" d="M752 75H796" marker-end="url(#arch-arrow-read)"/>
+            <g class="arch-node">
+              <rect x="800" y="45" width="140" height="60" rx="6"/>
+              <text class="arch-label" x="870" y="81">PostgreSQL</text>
+            </g>
+          </svg>
         </div>
 
         <h3 class="mono-caps flow-h">{{t "home.arch_write"}}</h3>
-        <div class="flow">
-          <div class="flow-node">
-            <code>PUT /books/{id}</code>
-          </div>
-          <div class="flow-arrow" aria-hidden="true"></div>
-          <div class="flow-node">
-            PostgreSQL
-            <span class="flow-note">{{t "home.arch_pg_note"}}</span>
-          </div>
-          <div class="flow-arrow" aria-hidden="true"></div>
-          <div class="flow-node">RabbitMQ</div>
-          <div class="flow-arrow" aria-hidden="true"></div>
-          <div class="flow-node flow-node-accent">
-            {{t "home.arch_replicas"}}
-            <span class="flow-note">{{t "home.arch_replicas_note"}}</span>
-          </div>
+        <div class="arch-scroll">
+          <svg class="arch-svg" viewBox="0 0 960 280" role="img" aria-label="{{t "home.arch_write"}}">
+            <defs>
+              <marker id="arch-arrow-write" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0L10 5L0 10z" class="arch-marker-write"/>
+              </marker>
+            </defs>
+            <g class="arch-node">
+              <rect x="20" y="110" width="170" height="60" rx="6"/>
+              <text class="arch-label arch-code" x="105" y="146">PUT /books/{id}</text>
+            </g>
+            <path class="arch-edge arch-edge-write" d="M192 140H316" marker-end="url(#arch-arrow-write)"/>
+            <g class="arch-node">
+              <rect x="320" y="110" width="170" height="60" rx="6"/>
+              <text class="arch-label" x="405" y="135">PostgreSQL</text>
+              <text class="arch-note" x="405" y="155">{{t "home.arch_pg_note"}}</text>
+            </g>
+            <path class="arch-edge arch-edge-write" d="M492 140H616" marker-end="url(#arch-arrow-write)"/>
+            <g class="arch-node">
+              <rect x="620" y="110" width="140" height="60" rx="6"/>
+              <text class="arch-label" x="690" y="146">RabbitMQ</text>
+            </g>
+            <path class="arch-edge arch-edge-write" d="M762 140L826 54" marker-end="url(#arch-arrow-write)"/>
+            <path class="arch-edge arch-edge-write" d="M762 140H826" marker-end="url(#arch-arrow-write)"/>
+            <path class="arch-edge arch-edge-write" d="M762 140L826 226" marker-end="url(#arch-arrow-write)"/>
+            <g class="arch-node arch-node-accent">
+              <rect x="830" y="26" width="110" height="48" rx="6"/>
+              <text class="arch-label" x="885" y="56">Proks</text>
+            </g>
+            <g class="arch-node arch-node-accent">
+              <rect x="830" y="116" width="110" height="48" rx="6"/>
+              <text class="arch-label" x="885" y="140">Proks</text>
+              <text class="arch-note" x="885" y="158">{{t "home.arch_replicas_note"}}</text>
+            </g>
+            <g class="arch-node arch-node-accent">
+              <rect x="830" y="206" width="110" height="48" rx="6"/>
+              <text class="arch-label" x="885" y="236">Proks</text>
+            </g>
+          </svg>
         </div>
       </div>
     </section>
