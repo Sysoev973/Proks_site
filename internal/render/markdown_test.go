@@ -95,3 +95,30 @@ func TestMarkdown(t *testing.T) {
 		}
 	}
 }
+
+func TestMarkdownHighlight(t *testing.T) {
+	src := []byte("```go\npackage main\n```\n\n```\nplain <b>\n```\n\n[документ](docs/a.md)\n")
+	got, err := Markdown(src, "README.md", testLinks)
+	if err != nil {
+		t.Fatal(err)
+	}
+	html := string(got)
+
+	// Блок с языком подсвечивается классами Chroma (CSS в static/css/highlight.css), не inline-стилями.
+	for _, want := range []string{`class="chroma"`, `<span class="kn">package</span>`} {
+		if !strings.Contains(html, want) {
+			t.Errorf("нет %q в\n%s", want, html)
+		}
+	}
+	if strings.Contains(html, `style=`) {
+		t.Errorf("подсветка inline-стилями вместо классов:\n%s", html)
+	}
+	// Блок без языка — обычный pre, текст экранирован.
+	if !strings.Contains(html, "<pre><code>plain &lt;b&gt;\n</code></pre>") {
+		t.Errorf("блок без языка отрендерен иначе:\n%s", html)
+	}
+	// Переписывание ссылок не сломалось от добавления highlighting.
+	if !strings.Contains(html, `href="/Proks_site/docs/a/"`) {
+		t.Errorf("rewriter не переписал ссылку:\n%s", html)
+	}
+}

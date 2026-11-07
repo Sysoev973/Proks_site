@@ -7,7 +7,9 @@ import (
 	"strings"
 	"unicode"
 
+	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/yuin/goldmark"
+	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
 	east "github.com/yuin/goldmark/extension/ast"
@@ -22,7 +24,14 @@ import (
 // <script> из README не попадёт на сайт. Цена — пропадают <p align>, <img width> и т.п.
 func Markdown(src []byte, from string, links Links) (template.HTML, error) {
 	md := goldmark.New(
-		goldmark.WithExtensions(extension.GFM),
+		// Подсветка классами, а не inline-стилями: CSS генерируется один раз (static/css/highlight.css).
+		goldmark.WithExtensions(
+			extension.GFM,
+			highlighting.NewHighlighting(
+				highlighting.WithStyle("github-dark"), // сайт только тёмный
+				highlighting.WithFormatOptions(chromahtml.WithClasses(true)),
+			),
+		),
 		goldmark.WithParserOptions(
 			parser.WithAutoHeadingID(),
 			parser.WithASTTransformers(util.Prioritized(rewriter{from: from, links: links}, 100)),
