@@ -134,7 +134,7 @@ func TestRenderEnglish(t *testing.T) {
 	for _, want := range []string{
 		`<html lang="en" data-bs-theme="dark">`,
 		`href="/Proks_site/static/css/site.css"`, // статика общая, не из /en/
-		`href="/Proks_site/en/docs/">Docs</a>`, // ссылка на документацию осталась в футере
+		`href="/Proks_site/en/docs/">Docs</a>`,   // ссылка на документацию осталась в футере
 		`href="/Proks_site/docs/" hreflang="ru" lang="ru"`,
 		`>Changelog</a>`,
 		`written in Russian`, // предупреждение, что документация не переведена
