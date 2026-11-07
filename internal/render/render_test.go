@@ -59,6 +59,7 @@ func TestRenderIndexUsesBase(t *testing.T) {
 		`МОДУЛИ <b>2</b>`,
 		`GO <b>1.25</b>`,
 		`>Кэш</a>`,
+		`<svg class="arch-svg"`, // схема архитектуры — SVG с анимированными стрелками
 		`<h3 class="module-name">cache</h3>`,
 		`class="badge module-badge module-badge-new">NEW</span>`,
 		`#tinylfu`,

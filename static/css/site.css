@@ -622,62 +622,77 @@ h2 {
   white-space: nowrap;
 }
 
-/* Схема архитектуры: на телефоне блоки идут столбиком со стрелками вниз, с 768px — в строку. */
-.flow {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.5rem;
+/* Схема архитектуры: SVG с бегущей штриховкой на стрелках.
+   На узком экране схему можно прокрутить горизонтально. */
+.arch-scroll {
+  overflow-x: auto;
 }
 
-.flow-node {
-  flex: 1 1 0;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius-lg);
-  background-color: var(--bs-body-bg);
-  text-align: center;
-  font-weight: 600;
-}
-
-.flow-node-accent {
-  border-color: var(--bs-primary);
-  background-color: var(--bs-primary-bg-subtle);
-}
-
-.flow-note {
+.arch-svg {
   display: block;
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: var(--bs-secondary-color);
+  width: 100%;
+  min-width: 640px;
+  height: auto;
 }
 
-.flow-arrow {
-  align-self: center;
-  color: var(--bs-secondary-color);
-  font-size: 1.25rem;
-  line-height: 1;
+.arch-node rect {
+  fill: var(--px-surface);
+  stroke: var(--px-border);
+  stroke-width: 1;
 }
 
-.flow-arrow::before {
-  content: "↓";
+.arch-node-accent rect {
+  fill: var(--bs-primary-bg-subtle);
+  stroke: var(--px-accent);
 }
 
-@media (min-width: 768px) {
-  .flow {
-    flex-direction: row;
-    align-items: center;
+.arch-label {
+  fill: var(--px-fg);
+  font-size: 15px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+.arch-code {
+  font-family: var(--bs-font-monospace);
+  font-size: 13px;
+}
+
+.arch-note {
+  fill: var(--bs-secondary-color);
+  font-size: 11px;
+  text-anchor: middle;
+}
+
+/* Стрелки: штриховка бежит по направлению линии. */
+.arch-edge {
+  fill: none;
+  stroke: var(--bs-secondary-color);
+  stroke-width: 2;
+  stroke-dasharray: 7 7;
+  animation: arch-flow 0.9s linear infinite;
+}
+
+.arch-edge-write {
+  stroke: var(--px-amber);
+}
+
+.arch-marker-read {
+  fill: var(--bs-secondary-color);
+}
+
+.arch-marker-write {
+  fill: var(--px-amber);
+}
+
+@keyframes arch-flow {
+  to {
+    stroke-dashoffset: -14;
   }
+}
 
-  .flow-node {
-    align-self: stretch;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .flow-arrow::before {
-    content: "→";
+@media (prefers-reduced-motion: reduce) {
+  .arch-edge {
+    animation: none;
   }
 }
