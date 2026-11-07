@@ -7,6 +7,8 @@ type Site struct {
 	SHA       string // коммит Proks, из которого собран сайт
 	CommitURL string
 	Year      int
+	// Origin — схема и хост опубликованного сайта, "https://sysoev973.github.io": canonical, og:url, sitemap.
+	Origin string
 }
 
 // ShortSHA — первые 7 символов коммита, как их показывает GitHub.
