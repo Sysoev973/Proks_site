@@ -29,12 +29,7 @@
       <div class="collapse navbar-collapse" id="mainNav">
         <ul class="navbar-nav ms-auto mono-caps">
           <li class="nav-item"><a class="nav-link" href="{{.Home}}#about">{{t "nav.about"}}</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{.Home}}#modules">{{t "nav.modules"}}</a></li>
           <li class="nav-item"><a class="nav-link" href="{{.Home}}#architecture">{{t "nav.architecture"}}</a></li>
-          <li class="nav-item">
-            <a class="nav-link{{if eq .Active "docs"}} active{{end}}" href="{{.Home}}docs/"
-               {{- if eq .Active "docs"}} aria-current="page"{{end}}>{{t "nav.docs"}}</a>
-          </li>
           <li class="nav-item">
             <a class="nav-link{{if eq .Active "changelog"}} active{{end}}" href="{{.Home}}changelog/"
                {{- if eq .Active "changelog"}} aria-current="page"{{end}}>{{t "nav.changelog"}}</a>
@@ -89,7 +84,11 @@
     </div>
   </footer>
 
-  <a class="to-top" href="#top" aria-label="{{t "totop"}}" title="{{t "totop"}}">↑</a>
+  <a class="to-top" href="#top" aria-label="{{t "totop"}}" title="{{t "totop"}}">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M8 13V3M3 7.5 8 2.5l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </a>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
