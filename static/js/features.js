@@ -11,6 +11,11 @@
     if (text != null) e.textContent = text;
     return e;
   };
+  const svgEl = (tag, attrs = {}) => {
+    const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  };
   const once = (node, fn) => {
     if (!('IntersectionObserver' in window)) return fn();
     const o = new IntersectionObserver(es => {
@@ -170,9 +175,53 @@
     reset();
   }
 
+  /* ---------- Графики бенчмарков: перекрестие, подсказка, легенда, прорисовка линий ---------- */
+  function charts() {
+    $$('[data-series]').forEach(b => b.addEventListener('click', () => {
+      const on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', String(on));
+      $$('.chart .' + b.dataset.series).forEach(n => n.classList.toggle('is-hidden', !on));
+    }));
+    $$('svg.chart').forEach(svg => {
+      const dots = $$('.chart-dot', svg);
+      dots.forEach(d => { const t = $('title', d); if (t) { d.dataset.tip = t.textContent; t.remove(); } });
+      const wrap = el('div', 'chart-wrap'); svg.replaceWith(wrap); wrap.append(svg);
+      const tip = el('div', 'chart-tip'); tip.hidden = true; wrap.append(tip);
+      const vb = svg.viewBox.baseVal;
+      const cross = svgEl('line', { class: 'chart-cross', y1: 12, y2: vb.height - 28 }); cross.style.display = 'none'; svg.append(cross);
+      const xs = [...new Set(dots.map(d => +d.getAttribute('cx')))].sort((a, b) => a - b);
+      const hide = () => { tip.hidden = true; cross.style.display = 'none'; dots.forEach(d => d.classList.remove('is-active')); };
+      svg.addEventListener('pointermove', e => {
+        if (!xs.length) return;
+        const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+        const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+        const cx = xs.reduce((a, b) => (Math.abs(b - p.x) < Math.abs(a - p.x) ? b : a));
+        const at = dots.filter(d => +d.getAttribute('cx') === cx && !d.classList.contains('is-hidden'));
+        dots.forEach(d => d.classList.toggle('is-active', at.includes(d)));
+        if (!at.length) return hide();
+        cross.setAttribute('x1', cx); cross.setAttribute('x2', cx); cross.style.display = '';
+        tip.replaceChildren(...at.map(d => el('div', null, d.dataset.tip)));
+        tip.hidden = false;
+        const left = cx * svg.getBoundingClientRect().width / vb.width, half = tip.offsetWidth / 2;
+        tip.style.left = Math.min(Math.max(left, half), wrap.clientWidth - half) + 'px';
+      });
+      svg.addEventListener('pointerleave', hide);
+      if (!reduce) once(svg, () => $$('.chart-line', svg).forEach(l => {
+        try {
+          const len = l.getTotalLength();
+          l.style.strokeDasharray = len; l.style.strokeDashoffset = len;
+          l.getBoundingClientRect(); // применить начальное состояние до анимации
+          l.style.transition = 'stroke-dashoffset .9s ease'; l.style.strokeDashoffset = 0;
+          setTimeout(() => { l.style.strokeDasharray = ''; l.style.transition = ''; }, 1000);
+        } catch (_) { /* getTotalLength недоступен: линия остаётся как есть */ }
+      }));
+    });
+  }
+
   const init = () => {
     counters();
     const s = $('[data-sim]'); if (s) sim(s);
+    charts();
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
