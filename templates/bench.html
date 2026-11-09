@@ -7,9 +7,9 @@
 
       {{with .Data}}
       {{if .Latest}}
-      <div class="d-flex flex-wrap gap-3 small mb-3" aria-hidden="true">
-        <span><span class="chart-swatch chart-off"></span>{{t "bench.off"}}</span>
-        <span><span class="chart-swatch chart-on"></span>{{t "bench.on"}}</span>
+      <div class="d-flex flex-wrap gap-3 small mb-3">
+        <button type="button" class="legend-btn" data-series="chart-off" aria-pressed="true"><span class="chart-swatch chart-off"></span>{{t "bench.off"}}</button>
+        <button type="button" class="legend-btn" data-series="chart-on" aria-pressed="true"><span class="chart-swatch chart-on"></span>{{t "bench.on"}}</button>
       </div>
       <div class="row g-4 mb-5">
         <section class="col-lg-6">
