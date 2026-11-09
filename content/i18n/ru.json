@@ -116,5 +116,15 @@
   "bench.row_requests": "Всего запросов",
   "bench.empty": "Замеров пока нет: workflow ещё ни разу не запускался.",
   "bench.workflow": "Workflow bench.yml",
-  "bench.data": "сырые данные (history.json)"
+  "bench.data": "сырые данные (history.json)",
+
+  "home.demo_h": "Кэш в действии",
+  "home.demo_lead": "Один поток запросов идёт в два кэша одинакового размера. Нажмите «Скан»: 200 разовых страниц вытеснят горячие ключи из LRU, а TinyLFU их сохранит.",
+  "sim.play": "Старт",
+  "sim.pause": "Пауза",
+  "sim.scan": "Скан",
+  "sim.reset": "Сброс",
+  "sim.size": "Размер кэша",
+  "sim.hit": "HIT",
+  "sim.miss": "MISS"
 }
