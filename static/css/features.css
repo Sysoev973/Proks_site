@@ -1,0 +1,22 @@
+/* Визуальные фичи: счётчики в шапке и демо кэша. Цвета — из site.css (--px-*). */
+.stat-line b { font-variant-numeric: tabular-nums; }
+
+.sim-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-bottom: 1rem; }
+.sim-range { display: flex; align-items: center; gap: .5rem; font-size: .85rem; color: var(--bs-secondary-color); margin-left: auto; }
+.sim-range input { width: 9rem; accent-color: var(--px-accent); }
+.sim-size { min-width: 2.5ch; font-family: var(--bs-font-monospace); color: var(--px-fg); }
+.sim-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.sim-panel { background: var(--px-surface); border: 1px solid var(--px-border); border-radius: .5rem; padding: 1rem; }
+.sim-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .5rem; }
+.sim-title { font-family: var(--bs-font-monospace); font-size: .9rem; margin: 0; text-transform: uppercase; letter-spacing: .08em; }
+.sim-ratio { font-family: var(--bs-font-monospace); font-size: 1.6rem; font-weight: 700; color: var(--px-go); font-variant-numeric: tabular-nums; }
+.sim-bar { height: 6px; background: var(--px-border); border-radius: 3px; overflow: hidden; margin-bottom: .75rem; }
+.sim-bar i { display: block; height: 100%; background: var(--px-go); transition: width .25s linear; }
+.sim-strip { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; }
+.sim-cell { aspect-ratio: 1; border-radius: 2px; background: var(--px-border); }
+.sim-cell.hit, .sim-key-hit { background: var(--px-go); }
+.sim-cell.miss, .sim-key-miss { background: var(--px-accent); }
+.sim-key { display: inline-block; width: .7rem; height: .7rem; border-radius: 2px; margin-right: .3rem; vertical-align: -1px; }
+.sim-legend { margin: .75rem 0 0; }
+
+@media (prefers-reduced-motion: reduce) { .sim-bar i { transition: none; } }

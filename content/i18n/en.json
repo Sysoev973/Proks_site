@@ -116,5 +116,15 @@
   "bench.row_requests": "Total requests",
   "bench.empty": "No runs yet: the workflow has never been run.",
   "bench.workflow": "bench.yml workflow",
-  "bench.data": "raw data (history.json)"
+  "bench.data": "raw data (history.json)",
+
+  "home.demo_h": "Cache in action",
+  "home.demo_lead": "One stream of requests goes to two caches of the same size. Press «Scan» to send 200 one-off pages: LRU is flushed, TinyLFU keeps its hot keys.",
+  "sim.play": "Play",
+  "sim.pause": "Pause",
+  "sim.scan": "Scan",
+  "sim.reset": "Reset",
+  "sim.size": "Cache size",
+  "sim.hit": "HIT",
+  "sim.miss": "MISS"
 }
